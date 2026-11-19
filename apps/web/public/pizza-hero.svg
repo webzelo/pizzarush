@@ -1,0 +1,246 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 800"
+  role="img"
+  aria-labelledby="pizza-hero-title pizza-hero-desc"
+>
+  <title id="pizza-hero-title">Freshly baked pizza illustration</title>
+  <desc id="pizza-hero-desc">
+    A top-down pepperoni pizza with basil leaves on a dark background.
+  </desc>
+
+  <defs>
+    <radialGradient id="pizza-bg" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#4b2d27" />
+      <stop offset="100%" stop-color="#1b1110" />
+    </radialGradient>
+
+    <radialGradient id="pizza-crust" cx="38%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#f9d98c" />
+      <stop offset="55%" stop-color="#e4aa4d" />
+      <stop offset="100%" stop-color="#b96a24" />
+    </radialGradient>
+
+    <radialGradient id="pizza-cheese" cx="42%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#ffe6a5" />
+      <stop offset="65%" stop-color="#f8cb6c" />
+      <stop offset="100%" stop-color="#eab24e" />
+    </radialGradient>
+
+    <radialGradient id="pizza-pepperoni" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#e76a56" />
+      <stop offset="100%" stop-color="#a72f27" />
+    </radialGradient>
+
+    <linearGradient id="pizza-basil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#72c05d" />
+      <stop offset="100%" stop-color="#2f7a38" />
+    </linearGradient>
+
+    <filter
+      id="pizza-shadow"
+      x="-30%"
+      y="-30%"
+      width="160%"
+      height="160%"
+    >
+      <feDropShadow
+        dx="0"
+        dy="20"
+        stdDeviation="24"
+        flood-color="#000"
+        flood-opacity="0.35"
+      />
+    </filter>
+
+    <g id="pepperoni-slice">
+      <circle r="34" fill="url(#pizza-pepperoni)" />
+      <circle
+        r="27"
+        fill="none"
+        stroke="#7f1f1c"
+        stroke-width="3"
+        opacity="0.3"
+      />
+      <circle cx="-9" cy="-11" r="4.5" fill="#f4a18b" opacity="0.7" />
+      <circle cx="10" cy="9" r="3.5" fill="#7f1f1c" opacity="0.45" />
+      <circle cx="7" cy="-15" r="2.8" fill="#7f1f1c" opacity="0.4" />
+      <circle cx="-14" cy="12" r="2.5" fill="#7f1f1c" opacity="0.35" />
+    </g>
+
+    <g id="basil-leaf">
+      <path
+        d="M0 -26 C18 -18 24 2 0 28 C-24 2 -18 -18 0 -26Z"
+        fill="url(#pizza-basil)"
+      />
+      <path
+        d="M0 -20 L0 22"
+        fill="none"
+        stroke="#c8eba6"
+        stroke-width="2.3"
+        stroke-linecap="round"
+        opacity="0.7"
+      />
+      <path
+        d="M0 -4 L9 -11 M0 7 L-8 -1"
+        fill="none"
+        stroke="#c8eba6"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        opacity="0.55"
+      />
+    </g>
+  </defs>
+
+  <rect width="800" height="800" fill="url(#pizza-bg)" />
+
+  <circle
+    cx="400"
+    cy="390"
+    r="340"
+    fill="none"
+    stroke="#f7c873"
+    stroke-width="1.5"
+    opacity="0.1"
+  />
+  <circle
+    cx="400"
+    cy="390"
+    r="370"
+    fill="none"
+    stroke="#f7c873"
+    stroke-width="1"
+    opacity="0.06"
+  />
+
+  <g fill="#f7c873" opacity="0.14">
+    <circle cx="120" cy="150" r="4" />
+    <circle cx="680" cy="180" r="3" />
+    <circle cx="150" cy="650" r="3" />
+    <circle cx="660" cy="620" r="4" />
+    <circle cx="90" cy="410" r="2.5" />
+    <circle cx="710" cy="430" r="2.5" />
+  </g>
+
+  <g filter="url(#pizza-shadow)">
+    <circle cx="400" cy="400" r="280" fill="url(#pizza-crust)" />
+    <circle
+      cx="400"
+      cy="400"
+      r="260"
+      fill="none"
+      stroke="#fbe2a0"
+      stroke-width="7"
+      stroke-dasharray="3 22"
+      stroke-linecap="round"
+      opacity="0.35"
+    />
+    <circle cx="400" cy="400" r="240" fill="#c9482f" />
+    <circle cx="400" cy="400" r="226" fill="url(#pizza-cheese)" />
+
+    <g fill="#fff0b8" opacity="0.35">
+      <ellipse
+        cx="330"
+        cy="320"
+        rx="36"
+        ry="18"
+        transform="rotate(-22 330 320)"
+      />
+      <ellipse
+        cx="490"
+        cy="300"
+        rx="30"
+        ry="14"
+        transform="rotate(18 490 300)"
+      />
+      <ellipse
+        cx="520"
+        cy="470"
+        rx="34"
+        ry="16"
+        transform="rotate(-12 520 470)"
+      />
+      <ellipse
+        cx="310"
+        cy="500"
+        rx="30"
+        ry="14"
+        transform="rotate(24 310 500)"
+      />
+      <ellipse
+        cx="400"
+        cy="390"
+        rx="40"
+        ry="18"
+        transform="rotate(-8 400 390)"
+      />
+    </g>
+
+    <g fill="#d69332" opacity="0.22">
+      <ellipse
+        cx="360"
+        cy="270"
+        rx="26"
+        ry="12"
+        transform="rotate(30 360 270)"
+      />
+      <ellipse
+        cx="540"
+        cy="360"
+        rx="22"
+        ry="10"
+        transform="rotate(-25 540 360)"
+      />
+      <ellipse
+        cx="450"
+        cy="540"
+        rx="28"
+        ry="12"
+        transform="rotate(15 450 540)"
+      />
+      <ellipse
+        cx="260"
+        cy="430"
+        rx="24"
+        ry="10"
+        transform="rotate(-18 260 430)"
+      />
+    </g>
+
+    <use href="#pepperoni-slice" transform="translate(400 230) rotate(8)" />
+    <use href="#pepperoni-slice" transform="translate(520 285) rotate(-14)" />
+    <use href="#pepperoni-slice" transform="translate(565 410) rotate(22)" />
+    <use href="#pepperoni-slice" transform="translate(505 535) rotate(-6)" />
+    <use href="#pepperoni-slice" transform="translate(375 565) rotate(12)" />
+    <use href="#pepperoni-slice" transform="translate(250 505) rotate(-20)" />
+    <use href="#pepperoni-slice" transform="translate(215 365) rotate(10)" />
+    <use href="#pepperoni-slice" transform="translate(285 255) rotate(-8)" />
+    <use href="#pepperoni-slice" transform="translate(440 390) rotate(28)" />
+    <use href="#pepperoni-slice" transform="translate(345 430) rotate(-18)" />
+
+    <use href="#basil-leaf" transform="translate(330 315) rotate(-28)" />
+    <use href="#basil-leaf" transform="translate(470 330) rotate(28)" />
+    <use href="#basil-leaf" transform="translate(330 470) rotate(18)" />
+    <use href="#basil-leaf" transform="translate(470 470) rotate(-18)" />
+    <use
+      href="#basil-leaf"
+      transform="translate(400 400) rotate(48) scale(0.8)"
+    />
+
+    <g fill="#8a2b22" opacity="0.35">
+      <circle cx="360" cy="350" r="2.5" />
+      <circle cx="510" cy="380" r="2" />
+      <circle cx="450" cy="500" r="2.5" />
+      <circle cx="300" cy="450" r="2" />
+      <circle cx="540" cy="520" r="2" />
+      <circle cx="280" cy="340" r="2" />
+    </g>
+
+    <g fill="#5a9b3b" opacity="0.3">
+      <circle cx="380" cy="290" r="2" />
+      <circle cx="520" cy="460" r="2.5" />
+      <circle cx="320" cy="530" r="2" />
+      <circle cx="470" cy="270" r="2" />
+    </g>
+  </g>
+</svg>
