@@ -21,7 +21,7 @@ import {
   passwordRequirementsMessage,
 } from "@/lib/auth/password"
 import type { PublicRole } from "@/lib/auth/roles"
-import { dashboardPathForRole, roleOptions } from "@/lib/auth/roles"
+import { roleOptions } from "@/lib/auth/roles"
 import { isHttpUrl, isValidEmail } from "@/lib/auth/validation"
 
 type SignUpValues = {
@@ -102,11 +102,10 @@ export function SignUpForm() {
 
       setStatus({
         tone: "success",
-        message: "Your account is ready. Taking you to your dashboard...",
+        message: "Your account is ready. Taking you home...",
       })
+      router.replace("/")
       router.refresh()
-      await new Promise((resolve) => setTimeout(resolve, 900))
-      router.push(dashboardPathForRole(values.role))
     } catch {
       setStatus({
         tone: "error",
@@ -119,7 +118,7 @@ export function SignUpForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <GoogleButton
-        callbackURL="/dashboard"
+        callbackURL="/"
         errorCallbackURL="/sign-up"
         onError={(message) => setStatus({ tone: "error", message })}
       />

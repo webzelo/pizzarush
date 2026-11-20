@@ -9,9 +9,10 @@ import { Menu, X } from "lucide-react"
 import { buttonVariants } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { AccountNav } from "@/components/auth/account-nav"
 import { Container } from "@/components/container"
 import { SiteLogo } from "@/components/site-logo"
-import { authNav, mainNav } from "@/lib/site-config"
+import { mainNav } from "@/lib/site-config"
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") {
@@ -78,30 +79,11 @@ export function SiteHeader() {
 
           <span className="mx-2 h-5 w-px bg-border" aria-hidden="true" />
 
-          <Link
-            href={authNav.signIn.href}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "text-muted-foreground"
-            )}
-          >
-            {authNav.signIn.label}
-          </Link>
-          <Link
-            href={authNav.signUp.href}
-            className={buttonVariants({ size: "sm" })}
-          >
-            {authNav.signUp.label}
-          </Link>
+          <AccountNav />
         </nav>
 
         <div className="flex items-center gap-2 md:hidden">
-          <Link
-            href={authNav.signUp.href}
-            className={buttonVariants({ size: "sm" })}
-          >
-            {authNav.signUp.label}
-          </Link>
+          <AccountNav variant="compact" onNavigate={() => setIsOpen(false)} />
 
           <button
             type="button"
@@ -127,7 +109,7 @@ export function SiteHeader() {
         className="border-t md:hidden"
       >
         <Container className="flex flex-col gap-1 py-4">
-          {[...mainNav, authNav.signIn].map((item) => {
+          {mainNav.map((item) => {
             const isActive = isActivePath(pathname, item.href)
 
             return (
@@ -142,6 +124,8 @@ export function SiteHeader() {
               </Link>
             )
           })}
+
+          <AccountNav variant="menu" onNavigate={() => setIsOpen(false)} />
         </Container>
       </nav>
     </header>

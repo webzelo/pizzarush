@@ -13,7 +13,6 @@ import { FormField } from "@/components/auth/form-field"
 import { GoogleButton } from "@/components/auth/google-button"
 import { PasswordField } from "@/components/auth/password-field"
 import { authClient } from "@/lib/auth-client"
-import { dashboardPathForRole } from "@/lib/auth/roles"
 import { isValidEmail } from "@/lib/auth/validation"
 
 type SignInValues = {
@@ -65,7 +64,7 @@ export function SignInForm() {
     setSubmitting(true)
 
     try {
-      const { data, error } = await authClient.signIn.email({
+      const { error } = await authClient.signIn.email({
         email: values.email.trim(),
         password: values.password,
       })
@@ -76,7 +75,7 @@ export function SignInForm() {
         return
       }
 
-      router.push(dashboardPathForRole(data?.user?.role))
+      router.replace("/")
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
@@ -87,7 +86,7 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <GoogleButton
-        callbackURL="/dashboard"
+        callbackURL="/"
         errorCallbackURL="/sign-in"
         label="Continue with Google"
         onError={setError}
