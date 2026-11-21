@@ -2,10 +2,9 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import "@workspace/ui/globals.css"
+import { Toaster } from "@workspace/ui/components/toast"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { siteConfig } from "@/lib/site-config"
 
@@ -42,11 +41,7 @@ export default function RootLayout({
     >
       <body className="min-h-svh">
         <ThemeProvider>
-          <div className="flex min-h-svh flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
+          <Toaster>{children}</Toaster>
         </ThemeProvider>
       </body>
     </html>

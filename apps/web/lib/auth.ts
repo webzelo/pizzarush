@@ -1,9 +1,10 @@
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
 import { APIError, betterAuth } from "better-auth"
 import { createAuthMiddleware } from "better-auth/api"
-import { MongoClient } from "mongodb"
 
 import { userAdditionalFields } from "@/lib/auth/fields"
+import { usersCollection } from "@/lib/collections"
+import { db, mongoClient } from "@/lib/db"
 import {
   MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
@@ -11,9 +12,6 @@ import {
   passwordRequirementsMessage,
 } from "@/lib/auth/password"
 import { isPublicRole } from "@/lib/auth/roles"
-
-const client = new MongoClient(process.env.BETTER_AUTH_DB_URI as string)
-const db = client.db("pizzahub")
 
 export const auth = betterAuth({
   emailAndPassword: {
@@ -60,8 +58,27 @@ export const auth = betterAuth({
         }),
       },
     },
+    session: {
+      create: {
+        // Blocked accounts cannot start a new session, on any auth method.
+        before: async (session) => {
+          const user = await usersCollection.findOne({ _id: session.userId })
+
+          if (user?.banned) {
+            throw APIError.from("FORBIDDEN", {
+              code: "USER_BLOCKED",
+              message:
+                user.banReason ||
+                "Your account has been blocked. Please contact support.",
+            })
+          }
+
+          return { data: session }
+        },
+      },
+    },
   },
   database: mongodbAdapter(db, {
-    client,
+    client: mongoClient,
   }),
 })

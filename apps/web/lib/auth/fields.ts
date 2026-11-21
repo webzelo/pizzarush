@@ -8,6 +8,17 @@ import { createValidator } from "@/lib/auth/standard-schema"
  * client plugin, so the field definition can never drift between them.
  */
 export const userAdditionalFields = {
+  banned: {
+    type: "boolean",
+    required: false,
+    defaultValue: false,
+    input: false,
+  },
+  banReason: {
+    type: "string",
+    required: false,
+    input: false,
+  },
   role: {
     type: "string",
     required: false,

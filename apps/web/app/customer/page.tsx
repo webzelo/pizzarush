@@ -1,42 +1,116 @@
-import { headers } from "next/headers"
+import type { Metadata } from "next"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import {
+  CheckCircle2,
+  Clock,
+  ShoppingBag,
+  UtensilsCrossed,
+  XCircle,
+} from "lucide-react"
 
-import { buttonVariants } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/button"
 
-import { SignOutButton } from "@/components/auth/sign-out-button"
-import { Container } from "@/components/container"
-import { auth } from "@/lib/auth"
+import { ConfirmAction } from "@/components/dashboard/confirm-action"
+import { EmptyState } from "@/components/dashboard/empty-state"
+import { OrderCard } from "@/components/dashboard/order-card"
+import { PageHeader } from "@/components/dashboard/page-header"
+import { StatCard } from "@/components/dashboard/stat-card"
+import { cancelOrder } from "@/lib/actions/customer-orders"
+import { requireRole } from "@/lib/dal/session"
+import { getCustomerOrderCounts, getRecentOrders } from "@/lib/data/orders"
 
-export const dynamic = "force-dynamic"
+export const metadata: Metadata = {
+  title: "Customer dashboard",
+}
 
-export default async function CustomerPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-
-  if (!session) {
-    redirect("/sign-in")
-  }
+export default async function CustomerOverviewPage() {
+  const session = await requireRole("customer")
+  const [counts, recentOrders] = await Promise.all([
+    getCustomerOrderCounts(session.user.id),
+    getRecentOrders({ customerId: session.user.id }, 3),
+  ])
 
   return (
-    <Container className="py-16 sm:py-24">
-      <div className="max-w-2xl">
-        <p className="text-sm font-medium text-muted-foreground">
-          Customer dashboard
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Welcome, {session.user.name}
-        </h1>
-        <p className="mt-4 text-muted-foreground">
-          Your account is ready. Browse the menu and place your first order.
-        </p>
+    <>
+      <PageHeader
+        title={`Welcome, ${session.user.name}`}
+        description="Track your orders and discover something new."
+        actions={
+          <Button render={<Link href="/menu" />}>
+            <UtensilsCrossed />
+            Browse menu
+          </Button>
+        }
+      />
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/menu" className={buttonVariants({ size: "lg" })}>
-            Browse the menu
-          </Link>
-          <SignOutButton />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Total orders" value={counts.total} icon={ShoppingBag} />
+        <StatCard
+          label="Pending"
+          value={counts.pending}
+          description="Waiting for the restaurant"
+          icon={Clock}
+          tone={counts.pending > 0 ? "warning" : "default"}
+        />
+        <StatCard
+          label="Accepted"
+          value={counts.accepted}
+          icon={CheckCircle2}
+          tone="success"
+        />
+        <StatCard
+          label="Rejected"
+          value={counts.rejected}
+          icon={XCircle}
+        />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Recent orders</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/customer/orders" />}
+          >
+            View all
+          </Button>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {recentOrders.length === 0 ? (
+            <EmptyState
+              icon={ShoppingBag}
+              title="No orders yet"
+              description="Browse the menu and place your first order."
+              action={
+                <Button render={<Link href="/menu" />}>Browse menu</Button>
+              }
+            />
+          ) : (
+            recentOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                perspective="customer"
+                detailsHref={`/customer/orders/${order.id}`}
+                actions={
+                  order.status === "pending" ? (
+                    <ConfirmAction
+                      action={cancelOrder.bind(null, order.id)}
+                      triggerLabel="Cancel order"
+                      title="Cancel this order?"
+                      description="Pending orders can be cancelled. This cannot be undone."
+                      confirmLabel="Cancel order"
+                      variant="destructive"
+                    />
+                  ) : null
+                }
+              />
+            ))
+          )}
         </div>
       </div>
-    </Container>
+    </>
   )
 }
