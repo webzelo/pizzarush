@@ -40,6 +40,11 @@ export const menuItemInputSchema = z.object({
     .transform((value) => value === "true"),
 })
 
+export const userProfileInputSchema = z.object({
+  name: trimmed(2, 80, "Name must be 2–80 characters."),
+  image: optionalImageUrl,
+})
+
 export const vendorProfileInputSchema = z.object({
   restaurantName: trimmed(2, 80, "Restaurant name must be 2–80 characters."),
   description: trimmed(10, 1000, "Description must be 10–1000 characters."),
@@ -96,5 +101,6 @@ export const moderationSchema = z.object({
 })
 
 export type MenuItemInput = z.infer<typeof menuItemInputSchema>
+export type UserProfileInput = z.infer<typeof userProfileInputSchema>
 export type VendorProfileInput = z.infer<typeof vendorProfileInputSchema>
 export type OrderInput = z.infer<typeof orderInputSchema>

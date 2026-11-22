@@ -1,12 +1,13 @@
 import type { Metadata } from "next"
 
+import { UserProfileForm } from "@/components/auth/user-profile-form"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { VendorProfileForm } from "@/components/vendor/vendor-profile-form"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
 
 export const metadata: Metadata = {
-  title: "Restaurant profile",
+  title: "Profile settings",
 }
 
 type ProfileSearchParams = {
@@ -44,8 +45,8 @@ export default async function VendorProfilePage({
   return (
     <>
       <PageHeader
-        title={vendor ? "Restaurant profile" : "Create your restaurant profile"}
-        description="This information appears on your public menu items and customer orders."
+        title="Profile settings"
+        description="Manage your account details and your restaurant profile."
       />
 
       {params.saved ? (
@@ -56,11 +57,33 @@ export default async function VendorProfilePage({
 
       {!vendor && params.setup ? (
         <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
-          Create your profile first. It is required before adding menu items.
+          Create your restaurant profile first. It is required before adding
+          menu items.
         </p>
       ) : null}
 
-      <VendorProfileForm vendor={profileValues} />
+      <section id="account" className="mt-6 grid scroll-mt-20 gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Account</h2>
+          <p className="text-sm text-muted-foreground">
+            Your personal details and photo.
+          </p>
+        </div>
+        <UserProfileForm
+          user={{ name: session.user.name, image: session.user.image }}
+        />
+      </section>
+
+      <section className="mt-12 grid gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Restaurant</h2>
+          <p className="text-sm text-muted-foreground">
+            This information appears on your public menu items and customer
+            orders.
+          </p>
+        </div>
+        <VendorProfileForm vendor={profileValues} />
+      </section>
     </>
   )
 }

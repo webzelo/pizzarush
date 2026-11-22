@@ -8,6 +8,7 @@ import {
   PlusCircle,
   ShoppingBag,
   Store,
+  UserRound,
   Users,
   UtensilsCrossed,
 } from "lucide-react"
@@ -45,6 +46,11 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
           exact: true,
         },
         { label: "My Orders", href: "/customer/orders", icon: ShoppingBag },
+        {
+          label: "Profile settings",
+          href: "/customer/profile",
+          icon: UserRound,
+        },
       ],
     },
     {
@@ -62,7 +68,7 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
           icon: LayoutDashboard,
           exact: true,
         },
-        { label: "Restaurant Profile", href: "/vendor/profile", icon: Store },
+        { label: "Profile settings", href: "/vendor/profile", icon: Store },
         { label: "Add Menu Item", href: "/vendor/menu/new", icon: PlusCircle },
         { label: "My Menu Items", href: "/vendor/menu", icon: ListChecks },
       ],
@@ -70,8 +76,16 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
     {
       label: "Business",
       items: [
-        { label: "Customer Orders", href: "/vendor/orders", icon: ClipboardList },
-        { label: "Subscription", href: "/vendor/subscription", icon: CreditCard },
+        {
+          label: "Customer Orders",
+          href: "/vendor/orders",
+          icon: ClipboardList,
+        },
+        {
+          label: "Subscription",
+          href: "/vendor/subscription",
+          icon: CreditCard,
+        },
       ],
     },
   ],
