@@ -4,8 +4,9 @@ import {
   ordersCollection,
   type OrderDoc,
   type OrderStatus,
+  type PaymentStatus,
 } from "@/lib/collections"
-import { PAGE_SIZE } from "@/lib/constants"
+import { CURRENCY, PAGE_SIZE } from "@/lib/constants"
 import { toObjectId } from "@/lib/object-id"
 
 export type OrderView = {
@@ -20,6 +21,11 @@ export type OrderView = {
   itemPrice: number
   quantity: number
   total: number
+  /** Stored on the order when it is placed (see backend "updatable order info"). */
+  amount: number
+  currency: string
+  paymentStatus: PaymentStatus
+  paymentReference: string | null
   deliveryDate: string
   deliveryAddress: string
   customerMessage: string
@@ -48,6 +54,12 @@ function toOrderView(order: OrderDoc): OrderView {
     itemPrice: order.itemPrice,
     quantity: order.quantity,
     total: order.itemPrice * order.quantity,
+    // Fall back to the same computed value for rows created before the
+    // backend stored payment fields.
+    amount: order.amount ?? order.itemPrice * order.quantity,
+    currency: order.currency ?? CURRENCY,
+    paymentStatus: order.paymentStatus ?? "pending",
+    paymentReference: order.paymentReference ?? null,
     deliveryDate: order.deliveryDate,
     deliveryAddress: order.deliveryAddress,
     customerMessage: order.customerMessage,

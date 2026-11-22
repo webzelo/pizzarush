@@ -11,6 +11,7 @@ import {
   type ActionResult,
   type FormState,
 } from "@/lib/action-state"
+import { CURRENCY } from "@/lib/constants"
 import {
   menuItemsCollection,
   ordersCollection,
@@ -76,6 +77,10 @@ export async function placeOrder(
     itemImageUrl: item.imageUrl,
     itemPrice: item.price,
     quantity: parsed.data.quantity,
+    amount: item.price * parsed.data.quantity,
+    currency: CURRENCY,
+    paymentStatus: "pending",
+    paymentReference: null,
     deliveryDate: parsed.data.deliveryDate,
     deliveryAddress: parsed.data.deliveryAddress,
     customerMessage: parsed.data.customerMessage,

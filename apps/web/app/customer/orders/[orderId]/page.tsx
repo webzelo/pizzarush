@@ -4,9 +4,17 @@ import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { OrderCard } from "@/components/dashboard/order-card"
+import { OrderEditForm } from "@/components/dashboard/order-edit-form"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { cancelOrder } from "@/lib/actions/customer-orders"
@@ -70,6 +78,20 @@ export default async function CustomerOrderDetailPage({
             ) : null
           }
         />
+
+        {order.status === "pending" ? (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Edit order</CardTitle>
+              <CardDescription>
+                Update delivery details while the order is still pending.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OrderEditForm order={order} />
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </>
   )

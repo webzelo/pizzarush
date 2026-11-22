@@ -50,7 +50,7 @@ export function OrderCard({
             <p className="mt-1 text-sm text-muted-foreground">
               {order.quantity} × {formatCurrency(order.itemPrice)} ={" "}
               <span className="font-medium text-foreground">
-                {formatCurrency(order.total)}
+                {formatCurrency(order.amount)}
               </span>
             </p>
           </div>
@@ -66,6 +66,15 @@ export function OrderCard({
           <div>
             <dt className="text-xs text-muted-foreground">Requested</dt>
             <dd className="font-medium">{formatDateTime(order.createdAt)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Payment</dt>
+            <dd className="flex items-center gap-2">
+              <StatusBadge status={order.paymentStatus} />
+              {order.paymentReference ? (
+                <span className="truncate text-xs">{order.paymentReference}</span>
+              ) : null}
+            </dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-xs text-muted-foreground">Delivery address</dt>

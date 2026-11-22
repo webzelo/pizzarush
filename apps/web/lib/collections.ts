@@ -68,6 +68,10 @@ export type OrderDoc = {
   itemImageUrl: string
   itemPrice: number
   quantity: number
+  amount: number
+  currency: string
+  paymentStatus: PaymentStatus
+  paymentReference: string | null
   deliveryDate: string
   deliveryAddress: string
   customerMessage: string

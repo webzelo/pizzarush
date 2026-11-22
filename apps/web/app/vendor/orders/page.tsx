@@ -4,6 +4,7 @@ import { ClipboardList } from "lucide-react"
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { FilterBar } from "@/components/dashboard/filter-bar"
+import { MarkOrderPaid } from "@/components/dashboard/mark-order-paid"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { TablePagination } from "@/components/dashboard/table-pagination"
@@ -83,6 +84,9 @@ export default async function VendorOrdersPage({
               actions={
                 order.status === "pending" ? (
                   <>
+                    {order.paymentStatus === "pending" ? (
+                      <MarkOrderPaid orderId={order.id} />
+                    ) : null}
                     <ConfirmAction
                       action={rejectOrder.bind(null, order.id)}
                       triggerLabel="Reject"
