@@ -16,8 +16,8 @@ import {
 import { Container } from "@/components/container"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
 import { OrderForm } from "@/components/menu/order-form"
+import { fetchPublicMenuItem } from "@/lib/api/menu"
 import { requireUser } from "@/lib/dal/session"
-import { getPublicMenuItem } from "@/lib/data/menu"
 import { formatCurrency } from "@/lib/format"
 
 type PageProps = {
@@ -28,8 +28,14 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { itemId } = await params
-  const item = await getPublicMenuItem(itemId)
-  return { title: item?.name ?? "Menu item" }
+
+  try {
+    const item = await fetchPublicMenuItem(itemId)
+    return { title: item?.name ?? "Menu item" }
+  } catch {
+    // The page's error boundary handles an unreachable menu API.
+    return { title: "Menu item" }
+  }
 }
 
 export default async function MenuItemPage({ params }: PageProps) {
@@ -39,7 +45,7 @@ export default async function MenuItemPage({ params }: PageProps) {
   // also what the card's "View Details" button hits, so logged-out users are
   // sent to sign in and returned here afterwards.
   const session = await requireUser(`/menu/${itemId}`)
-  const item = await getPublicMenuItem(itemId)
+  const item = await fetchPublicMenuItem(itemId)
 
   if (!item) {
     notFound()

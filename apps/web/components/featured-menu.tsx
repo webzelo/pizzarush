@@ -6,12 +6,18 @@ import { buttonVariants } from "@workspace/ui/components/button"
 import { Container } from "@/components/container"
 import { MenuCard } from "@/components/menu/menu-card"
 import { SectionHeading } from "@/components/section-heading"
-import { listPublicMenu } from "@/lib/data/menu"
+import { fetchPublicMenu } from "@/lib/api/menu"
 
 /** Premium vendors get first placement on the homepage. */
 export async function FeaturedMenu() {
-  const { items } = await listPublicMenu({ page: 1 })
-  const featured = items.filter((item) => item.premium).slice(0, 4)
+  // The homepage should still render if the menu service is unavailable.
+  const menu = await fetchPublicMenu({ page: 1 }).catch(() => null)
+
+  if (!menu) {
+    return null
+  }
+
+  const featured = menu.items.filter((item) => item.premium).slice(0, 4)
 
   if (featured.length === 0) {
     return null

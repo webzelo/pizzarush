@@ -9,8 +9,8 @@ import { EmptyState } from "@/components/dashboard/empty-state"
 import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
 import { TablePagination } from "@/components/dashboard/table-pagination"
 import { MenuGrid } from "@/components/menu/menu-grid"
+import { fetchMenuFilterOptions, fetchPublicMenu } from "@/lib/api/menu"
 import { CATEGORY_OPTIONS } from "@/lib/constants"
-import { getMenuFilterOptions, listPublicMenu } from "@/lib/data/menu"
 
 export const dynamic = "force-dynamic"
 
@@ -39,14 +39,14 @@ export default async function MenuPage({
 }) {
   const params = await searchParams
   const [menu, options] = await Promise.all([
-    listPublicMenu({
+    fetchPublicMenu({
       q: params.q,
       category: params.category,
       area: params.area,
       city: params.city,
       page: pageNumber(params.page),
     }),
-    getMenuFilterOptions(),
+    fetchMenuFilterOptions(),
   ])
 
   const filters: FilterDefinition[] = [
