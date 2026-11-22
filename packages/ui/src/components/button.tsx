@@ -1,3 +1,4 @@
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
@@ -43,12 +44,23 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  render,
+  nativeButton,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  // Base UI warns when `nativeButton` does not match the rendered element.
+  // Infer it from `render` so links rendered through `render` stay non-native,
+  // while callers can still override it explicitly.
+  const rendersNativeButton =
+    nativeButton ??
+    (render === undefined ||
+      (React.isValidElement(render) && render.type === "button"))
+
   return (
     <ButtonPrimitive
       {...props}
-      nativeButton
+      render={render}
+      nativeButton={rendersNativeButton}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
     />

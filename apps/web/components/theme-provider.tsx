@@ -47,7 +47,8 @@ function ThemeHotkey() {
         return
       }
 
-      if (event.key.toLowerCase() !== "d") {
+      // `key` can be missing for some synthetic/IME/extension events.
+      if (event.key?.toLowerCase() !== "d") {
         return
       }
 

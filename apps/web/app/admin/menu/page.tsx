@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Check, ListChecks, RotateCcw, Trash2 } from "lucide-react"
+import { ListChecks } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -159,7 +159,6 @@ export default async function AdminMenuPage({
                           title={`Approve ${item.name}?`}
                           description="The item becomes visible to customers as soon as the vendor marks it available."
                           confirmLabel="Approve item"
-                          icon={Check}
                         />
                       ) : null}
 
@@ -182,7 +181,6 @@ export default async function AdminMenuPage({
                           description="The item returns to the pending queue and is hidden from customers."
                           confirmLabel="Reset to pending"
                           variant="outline"
-                          icon={RotateCcw}
                         />
                       ) : null}
 
@@ -193,7 +191,6 @@ export default async function AdminMenuPage({
                         description="This permanently removes the item. Existing orders keep their snapshot details."
                         confirmLabel="Delete item"
                         variant="destructive"
-                        icon={Trash2}
                       />
                     </div>
                   </TableCell>

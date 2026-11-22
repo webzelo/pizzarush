@@ -39,7 +39,9 @@ export default function RootLayout({
         geist.variable
       )}
     >
-      <body className="min-h-svh">
+      {/* Browser extensions (e.g. Grammarly) add attributes to <body> before
+          hydration; suppress the mismatch warning for this element only. */}
+      <body className="min-h-svh" suppressHydrationWarning>
         <ThemeProvider>
           <Toaster>{children}</Toaster>
         </ThemeProvider>

@@ -24,7 +24,25 @@ import { initialFormState } from "@/lib/action-state"
 import { saveVendorProfile } from "@/lib/actions/vendor-profile"
 import type { VendorDoc } from "@/lib/collections"
 
-export function VendorProfileForm({ vendor }: { vendor?: VendorDoc | null }) {
+/** Only the fields the form renders, so the server can pass a plain object. */
+export type VendorProfileValues = Pick<
+  VendorDoc,
+  | "restaurantName"
+  | "cuisine"
+  | "description"
+  | "phone"
+  | "address"
+  | "area"
+  | "city"
+  | "logoUrl"
+  | "coverUrl"
+>
+
+export function VendorProfileForm({
+  vendor,
+}: {
+  vendor?: VendorProfileValues | null
+}) {
   const [state, formAction] = useActionState(
     saveVendorProfile,
     initialFormState

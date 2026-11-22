@@ -1,5 +1,6 @@
 "use server"
 
+import { ObjectId } from "mongodb"
 import { revalidatePath } from "next/cache"
 
 import { actionResult, type ActionResult } from "@/lib/action-state"
@@ -38,6 +39,7 @@ export async function upgradeToPremium(): Promise<ActionResult> {
   )
 
   await transactionsCollection.insertOne({
+    _id: new ObjectId(),
     vendorId: session.user.id,
     vendorName: vendor.restaurantName,
     vendorEmail: session.user.email,

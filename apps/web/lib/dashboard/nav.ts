@@ -8,7 +8,6 @@ import {
   PlusCircle,
   ShoppingBag,
   Store,
-  User,
   Users,
   UtensilsCrossed,
 } from "lucide-react"
@@ -94,10 +93,6 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
           icon: DollarSign,
         },
       ],
-    },
-    {
-      label: "Account",
-      items: [{ label: "My Profile", href: "/dashboard", icon: User }],
     },
   ],
 }

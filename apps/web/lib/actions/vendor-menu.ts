@@ -1,7 +1,6 @@
 "use server"
 
-import type { ObjectId } from "mongodb"
-import { ObjectId as ObjectIdValue } from "mongodb"
+import { ObjectId } from "mongodb"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -84,6 +83,7 @@ export async function createMenuItem(
   const now = new Date()
 
   await menuItemsCollection.insertOne({
+    _id: new ObjectId(),
     vendorId: session.user.id,
     name: parsed.data.name,
     category: parsed.data.category,

@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { ShieldCheck, ShieldX, Users } from "lucide-react"
+import { Users } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -173,7 +173,6 @@ export default async function AdminUsersPage({
                           }
                           confirmLabel={user.banned ? "Unblock user" : "Block user"}
                           variant={user.banned ? "outline" : "destructive"}
-                          icon={user.banned ? ShieldCheck : ShieldX}
                         />
                       ) : (
                         <span className="text-xs text-muted-foreground">

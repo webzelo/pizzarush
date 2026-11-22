@@ -25,9 +25,20 @@ export default async function VendorProfilePage({
     searchParams,
   ])
 
-  // Convert MongoDB document into a plain JSON-compatible object.
-  const serializedVendor = vendor
-    ? JSON.parse(JSON.stringify(vendor))
+  // Pass only plain fields: MongoDB ObjectIds and Dates are not serializable
+  // across the Server → Client Component boundary.
+  const profileValues = vendor
+    ? {
+        restaurantName: vendor.restaurantName,
+        cuisine: vendor.cuisine,
+        description: vendor.description,
+        phone: vendor.phone,
+        address: vendor.address,
+        area: vendor.area,
+        city: vendor.city,
+        logoUrl: vendor.logoUrl,
+        coverUrl: vendor.coverUrl,
+      }
     : null
 
   return (
@@ -49,9 +60,7 @@ export default async function VendorProfilePage({
         </p>
       ) : null}
 
-      <VendorProfileForm
-        vendor={JSON.parse(JSON.stringify(vendor))}
-      />
+      <VendorProfileForm vendor={profileValues} />
     </>
   )
 }
