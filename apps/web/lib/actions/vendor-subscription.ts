@@ -1,24 +1,44 @@
 "use server"
 
-import { ObjectId } from "mongodb"
-import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
 
 import { actionResult, type ActionResult } from "@/lib/action-state"
-import { transactionsCollection, vendorsCollection } from "@/lib/collections"
-import {
-  CURRENCY,
-  PREMIUM_DURATION_DAYS,
-  PREMIUM_PRICE,
-} from "@/lib/constants"
+import { CURRENCY, PREMIUM_DURATION_DAYS, PREMIUM_PRICE } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
 import { isPremiumActive } from "@/lib/plans"
+import { getStripe } from "@/lib/stripe"
+
+async function getSiteUrl() {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+
+  if (configured) {
+    return new URL(configured).origin
+  }
+
+  const requestHeaders = await headers()
+  const host = requestHeaders.get("host")
+
+  if (!host) {
+    throw new Error("Unable to determine the site URL.")
+  }
+
+  const forwardedProtocol = requestHeaders
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim()
+  const isLocal = /^(localhost|127\.0\.0\.1)(:|$)/.test(host)
+  const protocol = forwardedProtocol || (isLocal ? "http" : "https")
+
+  return `${protocol}://${host}`
+}
 
 /**
- * Demo checkout: records a paid transaction and activates Premium. Swap this
- * for a gateway callback when real payments are added.
+ * Creates a Stripe Checkout Session for the signed-in vendor only.
+ * Stripe confirms the payment later via webhook, so this never changes the
+ * subscription or writes a transaction by itself.
  */
-export async function upgradeToPremium(): Promise<ActionResult> {
+export async function startPremiumUpgrade(): Promise<ActionResult> {
   const session = await requireRole("vendor")
   const vendor = await getVendorByUserId(session.user.id)
 
@@ -33,44 +53,57 @@ export async function upgradeToPremium(): Promise<ActionResult> {
     return actionResult(true, "You are already on the Premium plan.")
   }
 
-  const now = new Date()
-  const expiresAt = new Date(
-    now.getTime() + PREMIUM_DURATION_DAYS * 24 * 60 * 60 * 1000
-  )
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return actionResult(false, "Payments are not configured yet.")
+  }
 
-  await transactionsCollection.insertOne({
-    _id: new ObjectId(),
-    vendorId: session.user.id,
-    vendorName: vendor.restaurantName,
-    vendorEmail: session.user.email,
-    plan: "premium",
-    amount: PREMIUM_PRICE,
-    currency: CURRENCY,
-    paymentStatus: "paid",
-    reference: `PR-${now.getTime()}`,
-    createdAt: now,
-  })
-
-  await vendorsCollection.updateOne(
-    { userId: session.user.id },
-    {
-      $set: {
-        plan: "premium",
-        planExpiresAt: expiresAt,
-        updatedAt: now,
-      },
+  try {
+    const siteUrl = await getSiteUrl()
+    const stripe = getStripe()
+    const metadata = {
+      userId: session.user.id,
+      vendorId: vendor.userId,
+      vendorDocId: vendor._id.toString(),
+      plan: "premium",
     }
-  )
 
-  revalidatePath("/vendor")
-  revalidatePath("/vendor/subscription")
-  revalidatePath("/admin")
-  revalidatePath("/admin/transactions")
-  revalidatePath("/menu")
-  revalidatePath("/")
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: CURRENCY.toLowerCase(),
+            unit_amount: Math.round(PREMIUM_PRICE * 100),
+            product_data: {
+              name: "Pizzarush Premium",
+              description: `${PREMIUM_DURATION_DAYS} days of unlimited active menu items and featured placement.`,
+            },
+          },
+        },
+      ],
+      customer_email: session.user.email,
+      client_reference_id: session.user.id,
+      metadata,
+      payment_intent_data: { metadata },
+      success_url: `${siteUrl}/vendor/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/vendor/subscription/cancel`,
+    })
 
-  return actionResult(
-    true,
-    `Premium activated until ${expiresAt.toLocaleDateString("en-US")}.`
-  )
+    if (!checkoutSession.url) {
+      return actionResult(
+        false,
+        "Stripe did not return a checkout URL. Please try again."
+      )
+    }
+
+    return actionResult(
+      true,
+      "Redirecting to secure Stripe checkout…",
+      checkoutSession.url
+    )
+  } catch (error) {
+    console.error("Failed to create Stripe Checkout Session", error)
+    return actionResult(false, "Could not start checkout. Please try again.")
+  }
 }

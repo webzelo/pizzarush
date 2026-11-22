@@ -11,10 +11,15 @@ export const initialFormState: FormState = { status: "idle" }
 export type ActionResult = {
   ok: boolean
   message: string
+  url?: string
 }
 
-export function actionResult(ok: boolean, message: string): ActionResult {
-  return { ok, message }
+export function actionResult(
+  ok: boolean,
+  message: string,
+  url?: string
+): ActionResult {
+  return url ? { ok, message, url } : { ok, message }
 }
 
 /** Maps Zod issues to the flat field key used by the form components. */

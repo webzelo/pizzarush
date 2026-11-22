@@ -11,12 +11,11 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 
-import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
-import { upgradeToPremium } from "@/lib/actions/vendor-subscription"
-import { PREMIUM_PRICE } from "@/lib/constants"
+import { UpgradeButton } from "@/components/vendor/upgrade-button"
+import { PREMIUM_DURATION_DAYS, PREMIUM_PRICE } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
 import { formatCurrency, formatDate } from "@/lib/format"
@@ -111,22 +110,33 @@ export default async function VendorSubscriptionPage() {
                 </p>
               </div>
             ) : (
-              <ConfirmAction
-                action={upgradeToPremium}
-                triggerLabel="Upgrade to Premium"
-                title="Upgrade to Premium?"
-                description={`This demo checkout records a ${formatCurrency(PREMIUM_PRICE)} paid transaction and activates Premium for 30 days.`}
-                confirmLabel="Pay and activate"
-                size="lg"
-              />
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span>Amount due today</span>
+                    <span className="font-semibold">
+                      {formatCurrency(PREMIUM_PRICE)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted-foreground">
+                    <span>Billing cycle</span>
+                    <span>Every {PREMIUM_DURATION_DAYS} days</span>
+                  </div>
+                  <div className="flex items-center justify-between text-muted-foreground">
+                    <span>Payment method</span>
+                    <span>Card via Stripe</span>
+                  </div>
+                </div>
+                <UpgradeButton />
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Payments are simulated for this project. Each upgrade creates a
-        read-only transaction record for the admin.
+        Payments are processed securely by Stripe. Premium activates only after
+        Stripe confirms the payment.
       </p>
     </>
   )
