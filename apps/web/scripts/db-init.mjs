@@ -27,6 +27,9 @@ try {
     db
       .collection("transactions")
       .createIndex({ paymentStatus: 1, createdAt: -1 }),
+    db
+      .collection("transactions")
+      .createIndex({ checkoutSessionId: 1 }, { unique: true, sparse: true }),
   ])
 
   console.log("Database indexes are ready.")

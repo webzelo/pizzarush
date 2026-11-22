@@ -46,7 +46,13 @@ export async function getAdminStats(): Promise<AdminStats> {
     transactionsCollection
       .aggregate<{ count: number; amount: number }>([
         { $match: { paymentStatus: "paid" } },
-        { $group: { _id: null, count: { $sum: 1 }, amount: { $sum: "$amount" } } },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            amount: { $sum: "$amount" },
+          },
+        },
       ])
       .toArray(),
   ])
@@ -105,11 +111,11 @@ export async function listAdminUsers(filters: {
     .map((user) => user._id)
   const vendors =
     vendorIds.length > 0
-      ? await vendorsCollection
-          .find({ userId: { $in: vendorIds } })
-          .toArray()
+      ? await vendorsCollection.find({ userId: { $in: vendorIds } }).toArray()
       : []
-  const vendorsByUser = new Map(vendors.map((vendor) => [vendor.userId, vendor]))
+  const vendorsByUser = new Map(
+    vendors.map((vendor) => [vendor.userId, vendor])
+  )
 
   return {
     users: users.map<AdminUserView>((user) => {
@@ -176,9 +182,7 @@ export async function listAdminMenuItems(filters: {
   const vendorIds = [...new Set(items.map((item) => item.vendorId))]
   const vendors =
     vendorIds.length > 0
-      ? await vendorsCollection
-          .find({ userId: { $in: vendorIds } })
-          .toArray()
+      ? await vendorsCollection.find({ userId: { $in: vendorIds } }).toArray()
       : []
   const users =
     vendorIds.length > 0
@@ -242,6 +246,8 @@ export async function listTransactions(filters: {
       { vendorName: regex },
       { vendorEmail: regex },
       { reference: regex },
+      { checkoutSessionId: regex },
+      { paymentIntentId: regex },
     ]
   }
 

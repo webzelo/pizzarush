@@ -86,6 +86,9 @@ export type TransactionDoc = {
   currency: string
   paymentStatus: PaymentStatus
   reference: string
+  checkoutSessionId?: string
+  paymentIntentId?: string
+  stripeEventId?: string
   createdAt: Date
 }
 
