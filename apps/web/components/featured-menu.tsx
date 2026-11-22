@@ -4,11 +4,11 @@ import { ArrowRight } from "lucide-react"
 import { buttonVariants } from "@workspace/ui/components/button"
 
 import { Container } from "@/components/container"
-import { MenuCard } from "@/components/menu/menu-card"
+import { MenuGrid } from "@/components/menu/menu-grid"
 import { SectionHeading } from "@/components/section-heading"
 import { fetchPublicMenu } from "@/lib/api/menu"
 
-/** Premium vendors get first placement on the homepage. */
+/** Approved, active dishes from the menu API, shown first on the homepage. */
 export async function FeaturedMenu() {
   // The homepage should still render if the menu service is unavailable.
   const menu = await fetchPublicMenu({ page: 1 }).catch(() => null)
@@ -17,7 +17,8 @@ export async function FeaturedMenu() {
     return null
   }
 
-  const featured = menu.items.filter((item) => item.premium).slice(0, 4)
+  // Express already filters to approved + active and sorts premium first.
+  const featured = menu.items.slice(0, 6)
 
   if (featured.length === 0) {
     return null
@@ -29,8 +30,8 @@ export async function FeaturedMenu() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading
             eyebrow="Featured"
-            title="Premium picks"
-            description="Hand-picked dishes from our Premium restaurants, shown first for a reason."
+            title="Featured Menu Items"
+            description="Fresh picks from our restaurants, ready to order."
           />
           <Link
             href="/menu"
@@ -41,10 +42,8 @@ export async function FeaturedMenu() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((item) => (
-            <MenuCard key={item.id} item={item} />
-          ))}
+        <div className="mt-8">
+          <MenuGrid items={featured} />
         </div>
       </Container>
     </section>

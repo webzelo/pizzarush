@@ -1,3 +1,4 @@
+import { CategorySections } from "@/components/category-sections"
 import { FeaturedMenu } from "@/components/featured-menu"
 import { HeroBanner } from "@/components/hero-banner"
 import { HowItWorks } from "@/components/how-it-works"
@@ -10,6 +11,7 @@ export default function Page() {
     <>
       <HeroBanner />
       <FeaturedMenu />
+      <CategorySections />
       <WhyChooseUs />
       <HowItWorks />
     </>
