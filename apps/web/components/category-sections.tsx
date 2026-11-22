@@ -1,5 +1,5 @@
+import { CategoryCarousel } from "@/components/category-carousel"
 import { Container } from "@/components/container"
-import { MenuGrid } from "@/components/menu/menu-grid"
 import { SectionHeading } from "@/components/section-heading"
 import { fetchPublicMenu } from "@/lib/api/menu"
 import type { PublicMenuItem } from "@/lib/data/menu"
@@ -85,14 +85,14 @@ export async function CategorySections() {
           description="Everything you want, grouped so you can find it faster."
         />
 
-        {visible.map(({ def, items }) => (
-          <div key={def.title} className="mt-12">
-            <SectionHeading eyebrow={def.eyebrow} title={def.title} description="" />
-            <div className="mt-4">
-              <MenuGrid items={items} />
-            </div>
-          </div>
-        ))}
+        <div className="mt-10">
+          <CategoryCarousel
+            sections={visible.map(({ def, items }) => ({
+              title: def.title,
+              items,
+            }))}
+          />
+        </div>
       </Container>
     </section>
   )
