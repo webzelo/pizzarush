@@ -25,7 +25,6 @@ export async function placeOrder(
   _previousState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const session = await requireRole("customer")
   const parsed = orderInputSchema.safeParse(formDataObject(formData))
 
   if (!parsed.success) {
@@ -36,6 +35,10 @@ export async function placeOrder(
   if (!itemId) {
     return { status: "error", message: "Menu item not found." }
   }
+
+  // Logged-out users who reach this action are sent to sign in, then back to
+  // the dish they were trying to order.
+  const session = await requireRole("customer", `/menu/${itemId.toString()}`)
 
   const item = await menuItemsCollection.findOne({
     _id: itemId,

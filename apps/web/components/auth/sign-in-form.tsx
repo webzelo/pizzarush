@@ -14,6 +14,7 @@ import { GoogleButton } from "@/components/auth/google-button"
 import { PasswordField } from "@/components/auth/password-field"
 import { authClient } from "@/lib/auth-client"
 import { isValidEmail } from "@/lib/auth/validation"
+import { safeNextPath } from "@/lib/redirects"
 
 type SignInValues = {
   email: string
@@ -22,8 +23,10 @@ type SignInValues = {
 
 type FieldErrors = Partial<Record<keyof SignInValues, string>>
 
-export function SignInForm() {
+export function SignInForm({ next = "/" }: { next?: string }) {
   const router = useRouter()
+  // Sanitised again on the client so a crafted prop can never redirect off-site.
+  const destination = safeNextPath(next, "/")
   const [values, setValues] = useState<SignInValues>({
     email: "",
     password: "",
@@ -75,7 +78,7 @@ export function SignInForm() {
         return
       }
 
-      router.replace("/")
+      router.replace(destination)
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
@@ -86,7 +89,7 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <GoogleButton
-        callbackURL="/"
+        callbackURL={destination}
         errorCallbackURL="/sign-in"
         label="Continue with Google"
         onError={setError}

@@ -16,7 +16,7 @@ import {
 import { Container } from "@/components/container"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
 import { OrderForm } from "@/components/menu/order-form"
-import { getCurrentSession } from "@/lib/dal/session"
+import { requireUser } from "@/lib/dal/session"
 import { getPublicMenuItem } from "@/lib/data/menu"
 import { formatCurrency } from "@/lib/format"
 
@@ -34,16 +34,18 @@ export async function generateMetadata({
 
 export default async function MenuItemPage({ params }: PageProps) {
   const { itemId } = await params
-  const [item, session] = await Promise.all([
-    getPublicMenuItem(itemId),
-    getCurrentSession(),
-  ])
+
+  // Browsing the list is public; opening a dish requires an account. This is
+  // also what the card's "View Details" button hits, so logged-out users are
+  // sent to sign in and returned here afterwards.
+  const session = await requireUser(`/menu/${itemId}`)
+  const item = await getPublicMenuItem(itemId)
 
   if (!item) {
     notFound()
   }
 
-  const canOrder = session?.user.role === "customer" && !session.user.banned
+  const canOrder = session.user.role === "customer"
 
   return (
     <Container className="py-10 sm:py-14">
@@ -129,12 +131,11 @@ export default async function MenuItemPage({ params }: PageProps) {
                 menuItemId={item.id}
                 priceLabel={formatCurrency(item.price)}
               />
-            ) : session ? (
+            ) : (
               <div className="flex flex-col gap-3 text-sm text-muted-foreground">
                 <p>
-                  {session.user.banned
-                    ? "Your account is blocked and cannot place orders."
-                    : "Only customer accounts can place orders. Sign in with a customer account to continue."}
+                  Only customer accounts can place orders. Sign in with a
+                  customer account to continue.
                 </p>
                 <Link
                   href="/dashboard"
@@ -142,27 +143,6 @@ export default async function MenuItemPage({ params }: PageProps) {
                 >
                   Go to dashboard
                 </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-                <p>Sign in to place an order with this restaurant.</p>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href="/sign-in"
-                    className={buttonVariants({ size: "sm" })}
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/sign-up"
-                    className={buttonVariants({
-                      variant: "outline",
-                      size: "sm",
-                    })}
-                  >
-                    Create an account
-                  </Link>
-                </div>
               </div>
             )}
           </CardContent>

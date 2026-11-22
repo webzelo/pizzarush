@@ -23,6 +23,7 @@ import {
 import type { PublicRole } from "@/lib/auth/roles"
 import { roleOptions } from "@/lib/auth/roles"
 import { isHttpUrl, isValidEmail } from "@/lib/auth/validation"
+import { safeNextPath } from "@/lib/redirects"
 
 type SignUpValues = {
   name: string
@@ -47,8 +48,9 @@ const initialValues: SignUpValues = {
   role: "customer",
 }
 
-export function SignUpForm() {
+export function SignUpForm({ next = "/" }: { next?: string }) {
   const router = useRouter()
+  const destination = safeNextPath(next, "/")
   const [values, setValues] = useState<SignUpValues>(initialValues)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [status, setStatus] = useState<Status>(null)
@@ -102,9 +104,9 @@ export function SignUpForm() {
 
       setStatus({
         tone: "success",
-        message: "Your account is ready. Taking you home...",
+        message: "Your account is ready. Taking you back...",
       })
-      router.replace("/")
+      router.replace(destination)
       router.refresh()
     } catch {
       setStatus({
@@ -118,7 +120,7 @@ export function SignUpForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <GoogleButton
-        callbackURL="/"
+        callbackURL={destination}
         errorCallbackURL="/sign-up"
         onError={(message) => setStatus({ tone: "error", message })}
       />

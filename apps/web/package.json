@@ -11,7 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "db:init": "node --env-file=.env.local scripts/db-init.mjs",
-    "seed:admin": "node --env-file=.env.local scripts/seed-admin.mjs"
+    "seed:admin": "node --env-file=.env.local scripts/seed-admin.mjs",
+    "seed:menu": "node --env-file=.env.local scripts/seed-menu.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

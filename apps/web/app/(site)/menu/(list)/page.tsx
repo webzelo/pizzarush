@@ -8,7 +8,7 @@ import { Container } from "@/components/container"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
 import { TablePagination } from "@/components/dashboard/table-pagination"
-import { MenuCard } from "@/components/menu/menu-card"
+import { MenuGrid } from "@/components/menu/menu-grid"
 import { CATEGORY_OPTIONS } from "@/lib/constants"
 import { getMenuFilterOptions, listPublicMenu } from "@/lib/data/menu"
 
@@ -61,13 +61,14 @@ export default async function MenuPage({
   if (options.areas.length > 0) {
     filters.push({
       key: "area",
-      label: "Area",
-      allLabel: "All areas",
+      label: "Location",
+      allLabel: "All locations",
       options: options.areas.map((area) => ({ label: area, value: area })),
     })
   }
 
-  if (options.cities.length > 0) {
+  // Only offer a city filter when the data actually spans several cities.
+  if (options.cities.length > 1) {
     filters.push({
       key: "city",
       label: "City",
@@ -75,6 +76,10 @@ export default async function MenuPage({
       options: options.cities.map((city) => ({ label: city, value: city })),
     })
   }
+
+  const hasFilters = Boolean(
+    params.q || params.category || params.area || params.city
+  )
 
   return (
     <Container className="py-12 sm:py-16">
@@ -104,20 +109,31 @@ export default async function MenuPage({
         <div className="mt-8">
           <EmptyState
             icon={UtensilsCrossed}
-            title="No dishes match your search"
-            description="Try a different keyword or clear the filters to see everything."
+            title={
+              hasFilters
+                ? "No dishes match your search"
+                : "No dishes available yet"
+            }
+            description={
+              hasFilters
+                ? "Try a different keyword or clear the filters to see everything."
+                : "Approved dishes will appear here as soon as restaurants add them."
+            }
             action={
-              <Link href="/menu" className={buttonVariants({ variant: "outline" })}>
-                Clear filters
-              </Link>
+              hasFilters ? (
+                <Link
+                  href="/menu"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Clear filters
+                </Link>
+              ) : undefined
             }
           />
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {menu.items.map((item) => (
-            <MenuCard key={item.id} item={item} />
-          ))}
+        <div className="mt-6">
+          <MenuGrid items={menu.items} />
         </div>
       )}
 

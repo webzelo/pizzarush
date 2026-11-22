@@ -4,6 +4,7 @@ import Link from "next/link"
 import { AuthCard } from "@/components/auth/auth-card"
 import { SignUpForm } from "@/components/auth/sign-up-form"
 import { Container } from "@/components/container"
+import { safeNextPath, signInHref } from "@/lib/redirects"
 import { authNav } from "@/lib/site-config"
 
 export const metadata: Metadata = {
@@ -12,7 +13,17 @@ export const metadata: Metadata = {
     "Create a PizzaHub account as a customer or a restaurant vendor.",
 }
 
-export default function SignUpPage() {
+type SignUpSearchParams = {
+  next?: string
+}
+
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<SignUpSearchParams>
+}) {
+  const next = safeNextPath((await searchParams).next, "/")
+
   return (
     <Container className="flex justify-center py-12 sm:py-16">
       <AuthCard
@@ -23,7 +34,7 @@ export default function SignUpPage() {
           <p>
             Already have an account?{" "}
             <Link
-              href={authNav.signIn.href}
+              href={signInHref(next)}
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
               {authNav.signIn.label}
@@ -31,7 +42,7 @@ export default function SignUpPage() {
           </p>
         }
       >
-        <SignUpForm />
+        <SignUpForm next={next} />
       </AuthCard>
     </Container>
   )

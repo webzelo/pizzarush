@@ -47,6 +47,7 @@ export type PublicMenuItem = {
   city: string
   imageUrl: string
   vendorName: string
+  vendorCuisine: string
   premium: boolean
 }
 
@@ -153,6 +154,7 @@ export async function listPublicMenu(filters: MenuFilters) {
         city: item.city,
         imageUrl: item.imageUrl,
         vendorName: vendor.restaurantName,
+        vendorCuisine: vendor.cuisine,
         premium: isPremiumActive(vendor),
       }
     })
@@ -201,6 +203,7 @@ export async function getPublicMenuItem(id: string) {
     city: item.city,
     imageUrl: item.imageUrl,
     vendorName: vendor.restaurantName,
+    vendorCuisine: vendor.cuisine,
     premium,
     vendor: {
       id: vendor.userId,
