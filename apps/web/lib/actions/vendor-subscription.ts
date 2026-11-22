@@ -7,6 +7,7 @@ import { CURRENCY, PREMIUM_DURATION_DAYS, PREMIUM_PRICE } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
 import { isPremiumActive } from "@/lib/plans"
+import { activatePremiumFromCheckout } from "@/lib/subscriptions"
 import { getStripe } from "@/lib/stripe"
 
 async function getSiteUrl() {
@@ -105,5 +106,51 @@ export async function startPremiumUpgrade(): Promise<ActionResult> {
   } catch (error) {
     console.error("Failed to create Stripe Checkout Session", error)
     return actionResult(false, "Could not start checkout. Please try again.")
+  }
+}
+
+/**
+ * Fallback reconciliation for local development when the webhook has not run.
+ * It still verifies the session directly with Stripe and only applies the
+ * signed-in vendor's own session. The webhook remains the production source
+ * of truth.
+ */
+export async function syncPremiumPayment(
+  sessionId: string
+): Promise<ActionResult> {
+  const session = await requireRole("vendor")
+
+  if (!/^cs_(test|live)_/.test(sessionId)) {
+    return actionResult(false, "Invalid checkout session.")
+  }
+
+  try {
+    const checkoutSession =
+      await getStripe().checkout.sessions.retrieve(sessionId)
+
+    const belongsToUser =
+      checkoutSession.client_reference_id === session.user.id ||
+      checkoutSession.metadata?.userId === session.user.id
+
+    if (!belongsToUser) {
+      return actionResult(
+        false,
+        "This checkout session does not belong to your account."
+      )
+    }
+
+    if (checkoutSession.payment_status !== "paid") {
+      return actionResult(true, "Payment is not confirmed yet.")
+    }
+
+    await activatePremiumFromCheckout(
+      checkoutSession,
+      `reconcile_${checkoutSession.id}`
+    )
+
+    return actionResult(true, "Payment status updated.")
+  } catch (error) {
+    console.error("Failed to reconcile Stripe payment", error)
+    return actionResult(false, "Could not refresh payment status. Try again.")
   }
 }

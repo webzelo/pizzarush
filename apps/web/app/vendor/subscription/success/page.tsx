@@ -13,6 +13,7 @@ import {
 } from "@workspace/ui/components/card"
 
 import { PageHeader } from "@/components/dashboard/page-header"
+import { PaymentStatusRefresher } from "@/components/vendor/payment-status-refresher"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
 import { isPremiumActive } from "@/lib/plans"
@@ -83,6 +84,11 @@ export default async function PremiumPaymentSuccessPage({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 text-sm text-muted-foreground">
+          <PaymentStatusRefresher
+            sessionId={sessionId}
+            paid={paid}
+            premiumActive={premiumActive}
+          />
           {email ? (
             <p>
               A confirmation email was sent to{" "}
@@ -93,7 +99,7 @@ export default async function PremiumPaymentSuccessPage({
             {premiumActive
               ? "You can now add more than 3 active menu items."
               : paid
-                ? "We are finalizing your subscription. Refresh this page in a moment."
+                ? "We are finalizing your subscription automatically."
                 : "You can safely close this page and check back soon."}
           </p>
           <Button render={<Link href="/vendor/subscription" />}>
