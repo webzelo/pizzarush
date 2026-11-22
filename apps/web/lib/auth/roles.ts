@@ -50,3 +50,10 @@ export function dashboardPathForRole(role?: string | null) {
   if (role === "vendor") return "/vendor"
   return "/customer"
 }
+
+/** Profile/settings destination that exists for each role. */
+export function profilePathForRole(role?: string | null) {
+  if (role === "vendor") return "/vendor/profile"
+  if (role === "admin") return "/admin"
+  return "/customer/profile"
+}

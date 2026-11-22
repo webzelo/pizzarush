@@ -1,13 +1,26 @@
 "use client"
 
+import { useState } from "react"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react"
 
 import { buttonVariants } from "@workspace/ui/components/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { SignOutButton } from "@/components/auth/sign-out-button"
 import { UserAvatar } from "@/components/auth/user-avatar"
-import { useSession } from "@/lib/auth-client"
+import { authClient, useSession } from "@/lib/auth-client"
+import { dashboardPathForRole, profilePathForRole } from "@/lib/auth/roles"
 import { authNav } from "@/lib/site-config"
 
 type AccountNavVariant = "inline" | "compact" | "menu"
@@ -30,6 +43,8 @@ export function AccountNav({
   onNavigate,
 }: AccountNavProps) {
   const { data: session, isPending } = useSession()
+  const router = useRouter()
+  const [signingOut, setSigningOut] = useState(false)
   const user = session?.user
 
   if (isPending) {
@@ -40,52 +55,101 @@ export function AccountNav({
     return <SignedOutLinks variant={variant} onNavigate={onNavigate} />
   }
 
-  if (variant === "compact") {
-    return (
-      <Link
-        href="/dashboard"
-        onClick={onNavigate}
-        aria-label={`Your account (${user.name})`}
-        className="rounded-full focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-      >
-        <UserAvatar name={user.name} image={user.image} />
-      </Link>
-    )
-  }
+  const dashboardHref = dashboardPathForRole(user.role)
+  const profileHref = profilePathForRole(user.role)
+  const profileLabel =
+    user.role === "admin" ? "Admin settings" : "Profile settings"
 
-  if (variant === "menu") {
-    return (
-      <div className="flex flex-col gap-1 border-t pt-3">
-        <Link
-          href="/dashboard"
-          onClick={onNavigate}
-          className={cn(menuItemClassName, "text-foreground")}
-        >
-          <UserAvatar name={user.name} image={user.image} />
-          <span className="truncate">{user.name}</span>
-        </Link>
-        <SignOutButton
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-          onSignedOut={onNavigate}
-        />
-      </div>
-    )
+  const handleSignOut = async () => {
+    setSigningOut(true)
+
+    try {
+      await authClient.signOut()
+      onNavigate?.()
+      router.push("/")
+      router.refresh()
+    } finally {
+      setSigningOut(false)
+    }
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Link
-        href="/dashboard"
-        aria-label={`Your account (${user.name})`}
-        className="flex items-center gap-2 rounded-md px-1 py-1 text-sm font-medium transition-colors hover:text-foreground"
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger
+        openOnHover
+        delay={150}
+        closeDelay={150}
+        aria-label={`Open account menu for ${user.name}`}
+        className={cn(
+          "flex items-center gap-2 rounded-md text-sm font-medium transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+          variant === "inline" && "px-1 py-1",
+          variant === "compact" && "rounded-full",
+          variant === "menu" &&
+            "w-full rounded-md px-3 py-2 text-foreground hover:bg-muted"
+        )}
       >
         <UserAvatar name={user.name} image={user.image} />
-        <span className="max-w-32 truncate">{user.name}</span>
-      </Link>
-      <SignOutButton variant="ghost" size="sm" />
-    </div>
+        {variant !== "compact" ? (
+          <span
+            className={cn(
+              "truncate",
+              variant === "menu" ? "max-w-40" : "max-w-32"
+            )}
+          >
+            {user.name}
+          </span>
+        ) : null}
+        {variant !== "compact" ? (
+          <ChevronDown className="ml-auto size-4 text-muted-foreground" />
+        ) : null}
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        align={variant === "menu" ? "start" : "end"}
+        sideOffset={8}
+        className="w-60"
+      >
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex items-center gap-2 py-2">
+            <UserAvatar
+              name={user.name}
+              image={user.image}
+              className="size-8"
+            />
+            <span className="grid min-w-0 flex-1">
+              <span className="truncate text-sm font-medium text-foreground">
+                {user.name}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {user.email}
+              </span>
+            </span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          render={<Link href={dashboardHref} onClick={onNavigate} />}
+        >
+          <LayoutDashboard />
+          Dashboard
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={<Link href={profileHref} onClick={onNavigate} />}
+        >
+          <UserRound />
+          {profileLabel}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          disabled={signingOut}
+          variant="destructive"
+        >
+          <LogOut />
+          {signingOut ? "Logging out…" : "Log out"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
