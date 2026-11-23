@@ -12,12 +12,11 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 
-import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { OrderEditForm } from "@/components/dashboard/order-edit-form"
 import { PageHeader } from "@/components/dashboard/page-header"
+import { CancelOrderAction } from "@/components/dashboard/cancel-order-action"
 import { StatusBadge } from "@/components/dashboard/status-badge"
-import { cancelOrder } from "@/lib/api/order-updates"
 import { requireRole } from "@/lib/dal/session"
 import { getCustomerOrder } from "@/lib/data/orders"
 
@@ -67,18 +66,10 @@ export default async function CustomerOrderDetailPage({
           perspective="customer"
           actions={
             order.status === "pending" ? (
-              <ConfirmAction
-                action={cancelOrder.bind(null, order.id)}
-                triggerLabel="Cancel order"
-                title="Cancel this order?"
-                description="Only pending orders can be cancelled. This cannot be undone."
-                confirmLabel="Cancel order"
-                variant="destructive"
-              />
+              <CancelOrderAction orderId={order.id} />
             ) : null
           }
         />
-
         {order.status === "pending" ? (
           <Card className="mt-6">
             <CardHeader>

@@ -1,13 +1,12 @@
 import type { Metadata } from "next"
 import { ShoppingBag } from "lucide-react"
 
-import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { FilterBar } from "@/components/dashboard/filter-bar"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { TablePagination } from "@/components/dashboard/table-pagination"
-import { cancelOrder } from "@/lib/api/order-updates"
+import { CancelOrderAction } from "@/components/dashboard/cancel-order-action"
 import { ORDER_STATUSES } from "@/lib/constants"
 import type { OrderStatus } from "@/lib/collections"
 import { requireRole } from "@/lib/dal/session"
@@ -90,14 +89,7 @@ export default async function CustomerOrdersPage({
               detailsHref={`/customer/orders/${order.id}`}
               actions={
                 order.status === "pending" ? (
-                  <ConfirmAction
-                    action={cancelOrder.bind(null, order.id)}
-                    triggerLabel="Cancel order"
-                    title="Cancel this order?"
-                    description="Only pending orders can be cancelled. This cannot be undone."
-                    confirmLabel="Cancel order"
-                    variant="destructive"
-                  />
+                  <CancelOrderAction orderId={order.id} />
                 ) : null
               }
             />
