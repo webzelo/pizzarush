@@ -8,6 +8,12 @@ export type MenuItemStatus = "pending" | "approved" | "rejected"
 export type OrderStatus = "pending" | "accepted" | "rejected" | "cancelled"
 export type PaymentStatus = "paid" | "pending" | "failed"
 
+/** One entry per order status change, oldest first. */
+export type OrderStatusChange = {
+  status: OrderStatus
+  at: Date
+}
+
 export type UserDoc = {
   _id: string
   name: string
@@ -76,8 +82,33 @@ export type OrderDoc = {
   deliveryAddress: string
   customerMessage: string
   status: OrderStatus
+  /** Older orders may not have history yet; views derive it from createdAt. */
+  statusHistory?: OrderStatusChange[]
   createdAt: Date
   updatedAt: Date
+}
+
+/** A customer's rating/review for one menu item from an order they placed. */
+export type ReviewDoc = {
+  _id: ObjectId
+  itemId: string
+  itemName: string
+  vendorId: string
+  vendorName: string
+  userId: string
+  customerName: string
+  rating: number
+  comment: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+/** One saved menu item per customer. */
+export type FavoriteDoc = {
+  _id: ObjectId
+  userId: string
+  itemId: string
+  createdAt: Date
 }
 
 export type TransactionDoc = {
@@ -101,5 +132,7 @@ export const sessionsCollection = db.collection("session")
 export const vendorsCollection = db.collection<VendorDoc>("vendors")
 export const menuItemsCollection = db.collection<MenuItemDoc>("menuItems")
 export const ordersCollection = db.collection<OrderDoc>("orders")
+export const reviewsCollection = db.collection<ReviewDoc>("reviews")
+export const favoritesCollection = db.collection<FavoriteDoc>("favorites")
 export const transactionsCollection =
   db.collection<TransactionDoc>("transactions")

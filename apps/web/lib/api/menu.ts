@@ -3,6 +3,7 @@ import type {
   PublicMenuDetail,
   PublicMenuItem,
 } from "@/lib/data/menu"
+import type { ReviewSummary, ReviewView } from "@/lib/data/reviews"
 
 /**
  * Server-only client for the Express menu API. `API_URL` is intentionally not
@@ -22,6 +23,11 @@ export type MenuFilterOptions = {
   categories: string[]
   areas: string[]
   cities: string[]
+}
+
+export type MenuItemReviews = {
+  summary: ReviewSummary
+  reviews: ReviewView[]
 }
 
 async function apiFetch<T>(path: string): Promise<T> {
@@ -74,4 +80,11 @@ export async function fetchPublicMenuItem(id: string) {
   }
 
   return (await response.json()) as PublicMenuDetail
+}
+
+/** Public reviews for the menu item details page. */
+export async function fetchMenuItemReviews(id: string) {
+  return apiFetch<MenuItemReviews>(
+    `/api/menu/${encodeURIComponent(id)}/reviews`
+  )
 }

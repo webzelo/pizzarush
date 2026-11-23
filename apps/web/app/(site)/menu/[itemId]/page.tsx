@@ -15,9 +15,15 @@ import {
 
 import { Container } from "@/components/container"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
+import { FavoriteButton } from "@/components/menu/favorite-button"
 import { OrderForm } from "@/components/menu/order-form"
-import { fetchPublicMenuItem } from "@/lib/api/menu"
+import { RatingSummary } from "@/components/menu/rating-summary"
+import { ReviewForm } from "@/components/menu/review-form"
+import { ReviewList } from "@/components/menu/review-list"
+import { fetchMenuItemReviews, fetchPublicMenuItem } from "@/lib/api/menu"
 import { requireUser } from "@/lib/dal/session"
+import { getFavoriteItemIds } from "@/lib/data/favorites"
+import { hasOrderedItem, getVendorRatingSummary } from "@/lib/data/reviews"
 import { formatCurrency } from "@/lib/format"
 
 type PageProps = {
@@ -52,6 +58,19 @@ export default async function MenuItemPage({ params }: PageProps) {
   }
 
   const canOrder = session.user.role === "customer"
+  const [favoriteItemIds, reviews, vendorRating, canReview] = await Promise.all(
+    [
+      canOrder ? getFavoriteItemIds(session.user.id) : Promise.resolve([]),
+      fetchMenuItemReviews(item.id).catch(() => null),
+      getVendorRatingSummary(item.vendorId).catch(() => ({
+        average: null,
+        count: 0,
+      })),
+      canOrder
+        ? hasOrderedItem(session.user.id, item.id).catch(() => false)
+        : Promise.resolve(false),
+    ]
+  )
 
   return (
     <Container className="py-10 sm:py-14">
@@ -94,7 +113,20 @@ export default async function MenuItemPage({ params }: PageProps) {
               {item.area}, {item.city}
             </Badge>
             {item.premium ? <PremiumBadge /> : null}
+            {canOrder ? (
+              <FavoriteButton
+                itemId={item.id}
+                initialFavorite={favoriteItemIds.includes(item.id)}
+                withLabel
+              />
+            ) : null}
           </div>
+
+          <RatingSummary
+            className="mt-3"
+            average={reviews?.summary.average ?? item.ratingAverage}
+            count={reviews?.summary.count ?? item.reviewCount}
+          />
 
           <p className="mt-5 leading-relaxed text-muted-foreground">
             {item.description}
@@ -109,6 +141,13 @@ export default async function MenuItemPage({ params }: PageProps) {
               <CardDescription>{item.vendor.cuisine}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>Restaurant rating</span>
+                <RatingSummary
+                  average={vendorRating.average}
+                  count={vendorRating.count}
+                />
+              </div>
               <p>{item.vendor.description}</p>
               <p className="flex items-center gap-2">
                 <MapPin className="size-4" />
@@ -120,6 +159,36 @@ export default async function MenuItemPage({ params }: PageProps) {
               </p>
             </CardContent>
           </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Reviews</CardTitle>
+              <CardDescription>
+                What customers said after ordering this dish.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReviewList reviews={reviews?.reviews ?? []} />
+            </CardContent>
+          </Card>
+
+          {canOrder ? (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Write a review</CardTitle>
+                <CardDescription>
+                  {canReview
+                    ? "Share your rating; you can update it later."
+                    : "Place an order for this dish before reviewing it."}
+                </CardDescription>
+              </CardHeader>
+              {canReview ? (
+                <CardContent>
+                  <ReviewForm itemId={item.id} />
+                </CardContent>
+              ) : null}
+            </Card>
+          ) : null}
         </div>
 
         <Card className="h-fit lg:sticky lg:top-24">

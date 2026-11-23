@@ -16,6 +16,7 @@ import { OrderCard } from "@/components/dashboard/order-card"
 import { OrderEditForm } from "@/components/dashboard/order-edit-form"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { CancelOrderAction } from "@/components/dashboard/cancel-order-action"
+import { OrderStatusTimeline } from "@/components/dashboard/order-status-timeline"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { requireRole } from "@/lib/dal/session"
 import { getCustomerOrder } from "@/lib/data/orders"
@@ -70,6 +71,19 @@ export default async function CustomerOrderDetailPage({
             ) : null
           }
         />
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Order status</CardTitle>
+            <CardDescription>
+              Follow this order from placement to its latest update.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <OrderStatusTimeline history={order.statusHistory} />
+          </CardContent>
+        </Card>
+
         {order.status === "pending" ? (
           <Card className="mt-6">
             <CardHeader>

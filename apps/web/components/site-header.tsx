@@ -12,6 +12,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { AccountNav } from "@/components/auth/account-nav"
 import { Container } from "@/components/container"
 import { SiteLogo } from "@/components/site-logo"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { mainNav } from "@/lib/site-config"
 
 function isActivePath(pathname: string, href: string) {
@@ -79,10 +80,12 @@ export function SiteHeader() {
 
           <span className="mx-2 h-5 w-px bg-border" aria-hidden="true" />
 
+          <ThemeToggle />
           <AccountNav />
         </nav>
 
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
           <AccountNav variant="compact" onNavigate={() => setIsOpen(false)} />
 
           <button

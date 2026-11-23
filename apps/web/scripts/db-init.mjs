@@ -35,6 +35,14 @@ try {
         },
       }
     ),
+    db.collection("reviews").createIndex({ itemId: 1, createdAt: -1 }),
+    db.collection("reviews").createIndex({ vendorId: 1, createdAt: -1 }),
+    db
+      .collection("reviews")
+      .createIndex({ userId: 1, itemId: 1 }, { unique: true }),
+    db
+      .collection("favorites")
+      .createIndex({ userId: 1, itemId: 1 }, { unique: true }),
     db.collection("transactions").createIndex({ vendorId: 1, createdAt: -1 }),
     db
       .collection("transactions")

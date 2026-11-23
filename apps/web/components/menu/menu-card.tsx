@@ -6,12 +6,20 @@ import { buttonVariants } from "@workspace/ui/components/button"
 import { Card, CardContent } from "@workspace/ui/components/card"
 
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
+import { FavoriteButton } from "@/components/menu/favorite-button"
+import { RatingSummary } from "@/components/menu/rating-summary"
 import type { PublicMenuItem } from "@/lib/data/menu"
 import { formatCurrency } from "@/lib/format"
 
-export function MenuCard({ item }: { item: PublicMenuItem }) {
+export function MenuCard({
+  item,
+  isFavorite,
+}: {
+  item: PublicMenuItem
+  isFavorite?: boolean
+}) {
   return (
-    <Card className="gap-0 overflow-hidden pt-0 transition-shadow hover:shadow-sm">
+    <Card className="relative gap-0 overflow-hidden pt-0 transition-shadow hover:shadow-sm">
       <Link
         href={`/menu/${item.id}`}
         className="group relative block aspect-[4/3] overflow-hidden bg-muted"
@@ -28,6 +36,14 @@ export function MenuCard({ item }: { item: PublicMenuItem }) {
           <PremiumBadge className="absolute top-2 left-2 shadow-sm" />
         ) : null}
       </Link>
+
+      {isFavorite !== undefined ? (
+        <FavoriteButton
+          itemId={item.id}
+          initialFavorite={isFavorite}
+          className="absolute top-2 right-2 z-10"
+        />
+      ) : null}
 
       <CardContent className="flex flex-1 flex-col gap-3 pt-4">
         <div className="flex items-start justify-between gap-3">
@@ -55,6 +71,10 @@ export function MenuCard({ item }: { item: PublicMenuItem }) {
             <MapPin className="size-3" aria-hidden="true" />
             {item.area}, {item.city}
           </span>
+          <RatingSummary
+            average={item.ratingAverage}
+            count={item.reviewCount}
+          />
         </div>
 
         <p className="line-clamp-2 text-sm text-muted-foreground">

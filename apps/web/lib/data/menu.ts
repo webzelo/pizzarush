@@ -49,6 +49,9 @@ export type PublicMenuItem = {
   vendorName: string
   vendorCuisine: string
   premium: boolean
+  /** Supplied by the menu API; optional so older API versions still render. */
+  ratingAverage?: number | null
+  reviewCount?: number
 }
 
 export type PublicMenuDetail = PublicMenuItem & {

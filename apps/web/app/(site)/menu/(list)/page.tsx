@@ -6,11 +6,16 @@ import { buttonVariants } from "@workspace/ui/components/button"
 
 import { Container } from "@/components/container"
 import { EmptyState } from "@/components/dashboard/empty-state"
-import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
+import {
+  FilterBar,
+  type FilterDefinition,
+} from "@/components/dashboard/filter-bar"
 import { TablePagination } from "@/components/dashboard/table-pagination"
 import { MenuGrid } from "@/components/menu/menu-grid"
 import { fetchMenuFilterOptions, fetchPublicMenu } from "@/lib/api/menu"
 import { CATEGORY_OPTIONS } from "@/lib/constants"
+import { getCurrentSession } from "@/lib/dal/session"
+import { getFavoriteItemIds } from "@/lib/data/favorites"
 
 export const dynamic = "force-dynamic"
 
@@ -38,7 +43,7 @@ export default async function MenuPage({
   searchParams: Promise<MenuSearchParams>
 }) {
   const params = await searchParams
-  const [menu, options] = await Promise.all([
+  const [menu, options, session] = await Promise.all([
     fetchPublicMenu({
       q: params.q,
       category: params.category,
@@ -47,7 +52,13 @@ export default async function MenuPage({
       page: pageNumber(params.page),
     }),
     fetchMenuFilterOptions(),
+    getCurrentSession(),
   ])
+
+  const favoriteItemIds =
+    session?.user.role === "customer"
+      ? await getFavoriteItemIds(session.user.id)
+      : undefined
 
   const filters: FilterDefinition[] = [
     {
@@ -95,10 +106,7 @@ export default async function MenuPage({
       </div>
 
       <div className="mt-8">
-        <FilterBar
-          searchPlaceholder="Search dishes…"
-          filters={filters}
-        />
+        <FilterBar searchPlaceholder="Search dishes…" filters={filters} />
       </div>
 
       <p className="mt-4 text-sm text-muted-foreground">
@@ -133,7 +141,7 @@ export default async function MenuPage({
         </div>
       ) : (
         <div className="mt-6">
-          <MenuGrid items={menu.items} />
+          <MenuGrid items={menu.items} favoriteItemIds={favoriteItemIds} />
         </div>
       )}
 

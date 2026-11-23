@@ -6,11 +6,24 @@ import type { PublicMenuItem } from "@/lib/data/menu"
 /** Shared so the real grid and its loading skeleton can never drift apart. */
 export const MENU_GRID_CLASS = "grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
 
-export function MenuGrid({ items }: { items: PublicMenuItem[] }) {
+export function MenuGrid({
+  items,
+  favoriteItemIds,
+}: {
+  items: PublicMenuItem[]
+  /** Omit for logged-out visitors so the save button is not rendered. */
+  favoriteItemIds?: string[]
+}) {
+  const favorites = new Set(favoriteItemIds)
+
   return (
     <div className={MENU_GRID_CLASS}>
       {items.map((item) => (
-        <MenuCard key={item.id} item={item} />
+        <MenuCard
+          key={item.id}
+          item={item}
+          isFavorite={favoriteItemIds ? favorites.has(item.id) : undefined}
+        />
       ))}
     </div>
   )

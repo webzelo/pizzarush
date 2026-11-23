@@ -4,6 +4,7 @@ import {
   ordersCollection,
   type OrderDoc,
   type OrderStatus,
+  type OrderStatusChange,
   type PaymentStatus,
 } from "@/lib/collections"
 import { ACTIVE_ORDER_STATUSES, CURRENCY, PAGE_SIZE } from "@/lib/constants"
@@ -30,6 +31,7 @@ export type OrderView = {
   deliveryAddress: string
   customerMessage: string
   status: OrderStatus
+  statusHistory: OrderStatusChange[]
   createdAt: Date
 }
 
@@ -39,6 +41,20 @@ export type OrderCounts = {
   accepted: number
   rejected: number
   cancelled: number
+}
+
+/** Older orders get a single derived entry until they change status again. */
+function statusHistoryFor(order: OrderDoc): OrderStatusChange[] {
+  if (order.statusHistory?.length) return order.statusHistory
+  return [{ status: "pending", at: order.createdAt }]
+}
+
+/** Shared update payload so every status change is recorded in the timeline. */
+export function statusChangeUpdate(status: OrderStatus, at = new Date()) {
+  return {
+    $set: { status, updatedAt: at },
+    $push: { statusHistory: { status, at } },
+  }
 }
 
 function toOrderView(order: OrderDoc): OrderView {
@@ -64,6 +80,7 @@ function toOrderView(order: OrderDoc): OrderView {
     deliveryAddress: order.deliveryAddress,
     customerMessage: order.customerMessage,
     status: order.status,
+    statusHistory: statusHistoryFor(order),
     createdAt: order.createdAt,
   }
 }
@@ -224,6 +241,7 @@ export async function createCustomerOrder(
     deliveryAddress: input.deliveryAddress,
     customerMessage: input.customerMessage,
     status: "pending",
+    statusHistory: [{ status: "pending", at: now }],
     createdAt: now,
     updatedAt: now,
   }

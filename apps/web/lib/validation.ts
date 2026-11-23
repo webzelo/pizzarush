@@ -100,7 +100,22 @@ export const moderationSchema = z.object({
   reason: z.string().trim().max(300).optional().default(""),
 })
 
+export const reviewSchema = z.object({
+  rating: z.coerce
+    .number({ message: "Choose a star rating." })
+    .int("Choose a star rating.")
+    .min(1, "Choose a star rating.")
+    .max(5, "Rating must be 5 stars or less."),
+  comment: z
+    .string()
+    .trim()
+    .max(500, "Review must be 500 characters or less.")
+    .optional()
+    .default(""),
+})
+
 export type MenuItemInput = z.infer<typeof menuItemInputSchema>
 export type UserProfileInput = z.infer<typeof userProfileInputSchema>
 export type VendorProfileInput = z.infer<typeof vendorProfileInputSchema>
 export type OrderInput = z.infer<typeof orderInputSchema>
+export type ReviewInput = z.infer<typeof reviewSchema>

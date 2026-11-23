@@ -3,8 +3,10 @@ import {
   ClipboardList,
   CreditCard,
   DollarSign,
+  Heart,
   LayoutDashboard,
   ListChecks,
+  MessageSquare,
   PlusCircle,
   ShoppingBag,
   Store,
@@ -46,6 +48,7 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
           exact: true,
         },
         { label: "My Orders", href: "/customer/orders", icon: ShoppingBag },
+        { label: "Favourites", href: "/customer/favorites", icon: Heart },
         {
           label: "Profile settings",
           href: "/customer/profile",
@@ -101,6 +104,7 @@ export const dashboardNav: Record<AccountRole, DashboardNavSection[]> = {
         },
         { label: "Manage Users", href: "/admin/users", icon: Users },
         { label: "Manage Menu Items", href: "/admin/menu", icon: ListChecks },
+        { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
         {
           label: "Transactions",
           href: "/admin/transactions",
