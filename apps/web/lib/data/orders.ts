@@ -1,4 +1,4 @@
-import type { Filter } from "mongodb"
+import { ObjectId, type Filter } from "mongodb"
 
 import {
   ordersCollection,
@@ -6,7 +6,7 @@ import {
   type OrderStatus,
   type PaymentStatus,
 } from "@/lib/collections"
-import { CURRENCY, PAGE_SIZE } from "@/lib/constants"
+import { ACTIVE_ORDER_STATUSES, CURRENCY, PAGE_SIZE } from "@/lib/constants"
 import { toObjectId } from "@/lib/object-id"
 
 export type OrderView = {
@@ -152,10 +152,7 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
   return order ? toOrderView(order) : null
 }
 
-export async function getRecentOrders(
-  match: Filter<OrderDoc>,
-  limit = 4
-) {
+export async function getRecentOrders(match: Filter<OrderDoc>, limit = 4) {
   const orders = await ordersCollection
     .find(match)
     .sort({ createdAt: -1 })
@@ -163,4 +160,74 @@ export async function getRecentOrders(
     .toArray()
 
   return orders.map(toOrderView)
+}
+
+/** New orders always start here; the restaurant moves them to accepted/rejected. */
+export type NewCustomerOrder = {
+  customerId: string
+  customerName: string
+  customerEmail: string
+  item: {
+    id: string
+    vendorId: string
+    vendorName: string
+    name: string
+    imageUrl: string
+    price: number
+  }
+  quantity: number
+  deliveryDate: string
+  deliveryAddress: string
+  customerMessage: string
+}
+
+/** True when the customer already has a pending/accepted order for that slot. */
+export function activeOrderExists(
+  customerId: string,
+  menuItemId: string,
+  deliveryDate: string
+) {
+  return ordersCollection
+    .countDocuments({
+      customerId,
+      menuItemId,
+      deliveryDate,
+      status: { $in: [...ACTIVE_ORDER_STATUSES] },
+    })
+    .then((count) => count > 0)
+}
+
+/** Creates an order with a trusted snapshot of the selected item and vendor. */
+export async function createCustomerOrder(
+  input: NewCustomerOrder
+): Promise<OrderView> {
+  const now = new Date()
+  const amount = input.item.price * input.quantity
+
+  const order: OrderDoc = {
+    _id: new ObjectId(),
+    customerId: input.customerId,
+    customerName: input.customerName,
+    customerEmail: input.customerEmail,
+    vendorId: input.item.vendorId,
+    vendorName: input.item.vendorName,
+    menuItemId: input.item.id,
+    itemName: input.item.name,
+    itemImageUrl: input.item.imageUrl,
+    itemPrice: input.item.price,
+    quantity: input.quantity,
+    amount,
+    currency: CURRENCY,
+    paymentStatus: "pending",
+    paymentReference: null,
+    deliveryDate: input.deliveryDate,
+    deliveryAddress: input.deliveryAddress,
+    customerMessage: input.customerMessage,
+    status: "pending",
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  await ordersCollection.insertOne(order)
+  return toOrderView(order)
 }

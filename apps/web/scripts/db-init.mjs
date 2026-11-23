@@ -23,6 +23,18 @@ try {
     db
       .collection("orders")
       .createIndex({ vendorId: 1, status: 1, createdAt: -1 }),
+    // One active order per customer/item/delivery date. Rejected and cancelled
+    // orders leave the partial index, so slots become available again.
+    db.collection("orders").createIndex(
+      { customerId: 1, menuItemId: 1, deliveryDate: 1 },
+      {
+        name: "unique_active_order_per_item_date",
+        unique: true,
+        partialFilterExpression: {
+          $or: [{ status: "pending" }, { status: "accepted" }],
+        },
+      }
+    ),
     db.collection("transactions").createIndex({ vendorId: 1, createdAt: -1 }),
     db
       .collection("transactions")

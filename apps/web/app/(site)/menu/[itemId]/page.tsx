@@ -112,8 +112,7 @@ export default async function MenuItemPage({ params }: PageProps) {
               <p>{item.vendor.description}</p>
               <p className="flex items-center gap-2">
                 <MapPin className="size-4" />
-                {item.vendor.address}, {item.vendor.area},{" "}
-                {item.vendor.city}
+                {item.vendor.address}, {item.vendor.area}, {item.vendor.city}
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="size-4" />
@@ -135,6 +134,9 @@ export default async function MenuItemPage({ params }: PageProps) {
             {canOrder ? (
               <OrderForm
                 menuItemId={item.id}
+                itemName={item.name}
+                vendorName={item.vendorName}
+                customerName={session.user.name}
                 priceLabel={formatCurrency(item.price)}
               />
             ) : (

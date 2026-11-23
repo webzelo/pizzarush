@@ -15,6 +15,9 @@ export const ORDER_STATUSES = [
   "cancelled",
 ] as const
 
+/** Orders still being handled by the restaurant. */
+export const ACTIVE_ORDER_STATUSES = ["pending", "accepted"] as const
+
 export const PAGE_SIZE = 8
 export const MENU_PAGE_SIZE = 12
 

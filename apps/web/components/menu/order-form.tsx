@@ -1,88 +1,64 @@
 "use client"
 
-import type { FormEvent } from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useActionState } from "react"
 
-import { Button } from "@workspace/ui/components/button"
-import { Field, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
-import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { useToastManager } from "@workspace/ui/components/toast"
 
-import { apiClient } from "@/lib/api-client"
+import { SubmitButton } from "@/components/dashboard/submit-button"
+import { initialFormState } from "@/lib/action-state"
+import { placeCustomerOrder } from "@/lib/actions/customer-orders"
 import { todayInputValue } from "@/lib/format"
 
 type OrderFormProps = {
   menuItemId: string
+  itemName: string
+  vendorName: string
+  customerName: string
   priceLabel: string
 }
 
-export function OrderForm({ menuItemId, priceLabel }: OrderFormProps) {
-  const router = useRouter()
-  const toast = useToastManager()
-  const [saving, setSaving] = useState(false)
-  const [values, setValues] = useState({
-    quantity: 1,
-    deliveryDate: todayInputValue(),
-    deliveryAddress: "",
-    customerMessage: "",
-  })
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSaving(true)
-
-    const result = await apiClient("/api/orders", {
-      method: "POST",
-      body: JSON.stringify({
-        menuItemId,
-        quantity: values.quantity,
-        deliveryDate: values.deliveryDate,
-        deliveryAddress: values.deliveryAddress.trim(),
-        customerMessage: values.customerMessage.trim(),
-      }),
-    })
-
-    if (result.ok) {
-      toast.add({
-        title: "Done",
-        description: "Order placed. The restaurant will accept or reject it soon.",
-        type: "success",
-      })
-      router.push("/customer/orders?placed=1")
-      router.refresh()
-    } else {
-      toast.add({
-        title: "Action failed",
-        description: result.message,
-        type: "error",
-      })
-    }
-
-    setSaving(false)
-  }
+/** Shared order form shown on the public menu item details page. */
+export function OrderForm({
+  menuItemId,
+  itemName,
+  vendorName,
+  customerName,
+  priceLabel,
+}: OrderFormProps) {
+  const placeOrder = placeCustomerOrder.bind(null, menuItemId)
+  const [state, formAction] = useActionState(placeOrder, initialFormState)
+  const errors = state.fieldErrors ?? {}
+  const minDeliveryDate = todayInputValue()
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form action={formAction} className="space-y-5">
+      <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+        <p className="font-medium">{itemName}</p>
+        <p className="text-xs text-muted-foreground">
+          For {customerName} · From {vendorName}
+        </p>
+      </div>
+
       <FieldGroup className="gap-4">
         <Field>
           <FieldLabel htmlFor="quantity">Quantity</FieldLabel>
           <Input
             id="quantity"
+            name="quantity"
             type="number"
             min={1}
             max={20}
-            value={values.quantity}
-            onChange={(event) =>
-              setValues({
-                ...values,
-                quantity: event.target.valueAsNumber || 1,
-              })
-            }
+            defaultValue={1}
             required
           />
+          <FieldError>{errors.quantity}</FieldError>
           <p className="text-xs text-muted-foreground">
             {priceLabel} each · maximum 20 per order
           </p>
@@ -92,49 +68,62 @@ export function OrderForm({ menuItemId, priceLabel }: OrderFormProps) {
           <FieldLabel htmlFor="deliveryDate">Delivery date</FieldLabel>
           <Input
             id="deliveryDate"
+            name="deliveryDate"
             type="date"
-            value={values.deliveryDate}
-            onChange={(event) =>
-              setValues({ ...values, deliveryDate: event.target.value })
-            }
+            min={minDeliveryDate}
+            defaultValue={minDeliveryDate}
             required
           />
+          <FieldError>{errors.deliveryDate}</FieldError>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="deliveryAddress">Delivery address</FieldLabel>
           <Textarea
             id="deliveryAddress"
+            name="deliveryAddress"
             rows={3}
             placeholder="House, street, area, city"
-            value={values.deliveryAddress}
-            onChange={(event) =>
-              setValues({ ...values, deliveryAddress: event.target.value })
-            }
             required
           />
+          <FieldError>{errors.deliveryAddress}</FieldError>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="customerMessage">
-            Message to the restaurant
+            Additional message / special instructions
           </FieldLabel>
           <Textarea
             id="customerMessage"
+            name="customerMessage"
             rows={2}
             placeholder="Optional delivery notes or special requests"
-            value={values.customerMessage}
-            onChange={(event) =>
-              setValues({ ...values, customerMessage: event.target.value })
-            }
           />
+          <FieldError>{errors.customerMessage}</FieldError>
         </Field>
       </FieldGroup>
 
-      <Button type="submit" size="lg" disabled={saving}>
-        {saving ? <Spinner /> : null}
-        {saving ? "Placing order…" : "Place order"}
-      </Button>
+      {state.status === "error" ? (
+        <p
+          aria-live="polite"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+        >
+          {state.message}
+        </p>
+      ) : null}
+
+      {state.status === "success" ? (
+        <p
+          aria-live="polite"
+          className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400"
+        >
+          {state.message}
+        </p>
+      ) : null}
+
+      <SubmitButton size="lg" pendingLabel="Placing order…">
+        Place order
+      </SubmitButton>
     </form>
   )
 }
