@@ -5,6 +5,7 @@ import { ImageIcon, Trash2, Upload } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { useToastManager } from "@workspace/ui/components/toast"
 import { cn } from "@workspace/ui/lib/utils"
 
 type ImageUploadFieldProps = {
@@ -26,6 +27,7 @@ export function ImageUploadField({
   required,
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const toast = useToastManager()
   const [url, setUrl] = useState(defaultValue)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -60,7 +62,20 @@ export function ImageUploadField({
       }
 
       setUrl(payload.url)
+      toast.add({
+        title: "Image uploaded",
+        description: "Saved to ImgBB.",
+        type: "success",
+      })
     } catch (uploadFailure) {
+      toast.add({
+        title: "Image upload failed",
+        description:
+          uploadFailure instanceof Error
+            ? uploadFailure.message
+            : "Image upload failed.",
+        type: "error",
+      })
       setUploadError(
         uploadFailure instanceof Error
           ? uploadFailure.message

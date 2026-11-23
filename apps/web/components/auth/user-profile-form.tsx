@@ -22,6 +22,7 @@ import { Input } from "@workspace/ui/components/input"
 import { UserAvatar } from "@/components/auth/user-avatar"
 import { SubmitButton } from "@/components/dashboard/submit-button"
 import { ImageUploadField } from "@/components/dashboard/image-upload-field"
+import { useActionToast } from "@/components/dashboard/action-toast"
 import { initialFormState } from "@/lib/action-state"
 import { saveUserProfile } from "@/lib/actions/user-profile"
 import { useSession } from "@/lib/auth-client"
@@ -37,7 +38,12 @@ export function UserProfileForm({ user }: { user: UserProfileValues }) {
   const { refetch } = useSession()
   const router = useRouter()
   const refreshedFor = useRef<typeof state | null>(null)
+  const { formState } = useActionToast()
   const errors = state.fieldErrors ?? {}
+
+  useEffect(() => {
+    formState(state)
+  }, [formState, state])
 
   // Keep the navbar/sidebar avatar and name in sync after a successful save.
   useEffect(() => {
@@ -108,18 +114,6 @@ export function UserProfileForm({ user }: { user: UserProfileValues }) {
       </Card>
 
       <div className="flex flex-col items-start gap-3 lg:col-span-2">
-        {state.status === "error" ? (
-          <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-            {state.message}
-          </p>
-        ) : null}
-
-        {state.status === "success" ? (
-          <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400">
-            {state.message}
-          </p>
-        ) : null}
-
         <SubmitButton size="lg" pendingLabel="Saving…">
           Save profile
         </SubmitButton>

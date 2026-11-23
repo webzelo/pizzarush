@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react"
+import { useState, useEffect, useActionState } from "react"
 import { useRouter } from "next/navigation"
 import { Star } from "lucide-react"
 
@@ -14,6 +14,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { SubmitButton } from "@/components/dashboard/submit-button"
+import { useActionToast } from "@/components/dashboard/action-toast"
 import { initialFormState } from "@/lib/action-state"
 import { submitMenuReview } from "@/lib/actions/reviews"
 
@@ -24,13 +25,14 @@ export function ReviewForm({ itemId }: { itemId: string }) {
     submitMenuReview.bind(null, itemId),
     initialFormState
   )
+  const { formState } = useActionToast()
   const router = useRouter()
+  const errors = state.fieldErrors ?? {}
 
   useEffect(() => {
+    formState(state)
     if (state.status === "success") router.refresh()
-  }, [state.status, router])
-
-  const errors = state.fieldErrors ?? {}
+  }, [formState, state, router])
 
   return (
     <form action={formAction} className="space-y-5">
@@ -82,23 +84,6 @@ export function ReviewForm({ itemId }: { itemId: string }) {
           <FieldError>{errors.comment}</FieldError>
         </Field>
       </FieldGroup>
-
-      {state.status === "error" ? (
-        <p
-          aria-live="polite"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
-        >
-          {state.message}
-        </p>
-      ) : null}
-      {state.status === "success" ? (
-        <p
-          aria-live="polite"
-          className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400"
-        >
-          {state.message}
-        </p>
-      ) : null}
 
       <SubmitButton pendingLabel="Publishing…">Publish review</SubmitButton>
     </form>

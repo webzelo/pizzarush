@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useEffect, useActionState } from "react"
 
 import {
   Field,
@@ -12,6 +12,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 
 import { SubmitButton } from "@/components/dashboard/submit-button"
+import { useActionToast } from "@/components/dashboard/action-toast"
 import { initialFormState } from "@/lib/action-state"
 import { placeCustomerOrder } from "@/lib/actions/customer-orders"
 import { todayInputValue } from "@/lib/format"
@@ -34,8 +35,13 @@ export function OrderForm({
 }: OrderFormProps) {
   const placeOrder = placeCustomerOrder.bind(null, menuItemId)
   const [state, formAction] = useActionState(placeOrder, initialFormState)
+  const { formState } = useActionToast()
   const errors = state.fieldErrors ?? {}
   const minDeliveryDate = todayInputValue()
+
+  useEffect(() => {
+    formState(state)
+  }, [formState, state])
 
   return (
     <form action={formAction} className="space-y-5">
@@ -102,24 +108,6 @@ export function OrderForm({
           <FieldError>{errors.customerMessage}</FieldError>
         </Field>
       </FieldGroup>
-
-      {state.status === "error" ? (
-        <p
-          aria-live="polite"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
-        >
-          {state.message}
-        </p>
-      ) : null}
-
-      {state.status === "success" ? (
-        <p
-          aria-live="polite"
-          className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400"
-        >
-          {state.message}
-        </p>
-      ) : null}
 
       <SubmitButton size="lg" pendingLabel="Placing order…">
         Place order

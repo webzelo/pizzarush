@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useEffect, useActionState } from "react"
 
 import {
   Field,
@@ -28,6 +28,7 @@ import {
 import { FormSwitch } from "@/components/dashboard/form-switch"
 import { ImageUploadField } from "@/components/dashboard/image-upload-field"
 import { SubmitButton } from "@/components/dashboard/submit-button"
+import { useActionToast } from "@/components/dashboard/action-toast"
 import { initialFormState } from "@/lib/action-state"
 import { createMenuItem, updateMenuItem } from "@/lib/actions/vendor-menu"
 import { CATEGORY_OPTIONS } from "@/lib/constants"
@@ -36,7 +37,12 @@ import type { MenuItemView } from "@/lib/data/menu"
 export function MenuItemForm({ item }: { item?: MenuItemView }) {
   const action = item ? updateMenuItem : createMenuItem
   const [state, formAction] = useActionState(action, initialFormState)
+  const { formState } = useActionToast()
   const errors = state.fieldErrors ?? {}
+
+  useEffect(() => {
+    formState(state)
+  }, [formState, state])
 
   return (
     <form
@@ -181,12 +187,6 @@ export function MenuItemForm({ item }: { item?: MenuItemView }) {
             />
           </CardContent>
         </Card>
-
-        {state.status === "error" ? (
-          <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-            {state.message}
-          </p>
-        ) : null}
 
         <SubmitButton size="lg" pendingLabel="Saving…">
           {item ? "Save changes" : "Submit for approval"}
