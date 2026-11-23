@@ -1,8 +1,12 @@
+import { motion } from "framer-motion"
+
 import { CategoryCarousel } from "@/components/category-carousel"
 import { Container } from "@/components/container"
 import { SectionHeading } from "@/components/section-heading"
 import { fetchPublicMenu } from "@/lib/api/menu"
 import type { PublicMenuItem } from "@/lib/data/menu"
+
+const ease = "easeOut" as const
 
 type SectionDef = {
   eyebrow: string
@@ -50,9 +54,11 @@ const SECTIONS: SectionDef[] = [
   },
 ]
 
-async function sectionItems(def: SectionDef): Promise<PublicMenuItem[]> {
+async function sectionItems(def: SectionDef) {
   const menus = await Promise.all(
-    def.categories.map((category) => fetchPublicMenu({ category }).catch(() => null))
+    def.categories.map((category) =>
+      fetchPublicMenu({ category }).catch(() => null)
+    )
   )
 
   const items = menus
@@ -79,20 +85,33 @@ export async function CategorySections() {
   return (
     <section className="border-b py-16 sm:py-20">
       <Container>
-        <SectionHeading
-          eyebrow="Categories"
-          title="Browse by Category"
-          description="Everything you want, grouped so you can find it faster."
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 0.6, ease }}
+        >
+          <SectionHeading
+            eyebrow="Categories"
+            title="Browse by Category"
+            description="Everything you want, grouped so you can find it faster."
+          />
+        </motion.div>
 
-        <div className="mt-10">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ margin: "0px 0px -10% 0px" }}
+          transition={{ duration: 0.7, delay: 0.1, ease }}
+          className="mt-10"
+        >
           <CategoryCarousel
             sections={visible.map(({ def, items }) => ({
               title: def.title,
-              items,
+              items: items as PublicMenuItem[],
             }))}
           />
-        </div>
+        </motion.div>
       </Container>
     </section>
   )

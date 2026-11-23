@@ -1,8 +1,11 @@
 import type { LucideIcon } from "lucide-react"
 import { Pizza, ShoppingCart, Truck } from "lucide-react"
+import { motion } from "framer-motion"
 
 import { Container } from "@/components/container"
 import { SectionHeading } from "@/components/section-heading"
+
+const ease = "easeOut" as const
 
 type Step = {
   icon: LucideIcon
@@ -40,7 +43,13 @@ function StepCard({ step, index, isLast }: StepCardProps) {
   const Icon = step.icon
 
   return (
-    <li className="relative text-center">
+    <motion.li
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ margin: "0px 0px -10% 0px" }}
+      transition={{ duration: 0.5, delay: index * 0.12, ease }}
+      className="relative text-center"
+    >
       {!isLast && (
         <div
           className="absolute top-8 left-1/2 hidden h-px w-[calc(100%+2rem)] bg-border md:block"
@@ -59,7 +68,7 @@ function StepCard({ step, index, isLast }: StepCardProps) {
       <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
         {step.description}
       </p>
-    </li>
+    </motion.li>
   )
 }
 

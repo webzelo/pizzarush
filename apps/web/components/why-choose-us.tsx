@@ -1,8 +1,11 @@
 import type { LucideIcon } from "lucide-react"
 import { ChefHat, Leaf, ShieldCheck, Timer } from "lucide-react"
+import { motion } from "framer-motion"
 
 import { Container } from "@/components/container"
 import { SectionHeading } from "@/components/section-heading"
+
+const ease = "easeOut" as const
 
 type Benefit = {
   icon: LucideIcon
@@ -39,7 +42,13 @@ const benefits: Benefit[] = [
 
 function BenefitCard({ icon: Icon, title, description }: Benefit) {
   return (
-    <article className="group rounded-2xl border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-sm">
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ margin: "0px 0px -10% 0px" }}
+      transition={{ duration: 0.5, ease }}
+      className="group rounded-2xl border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-sm"
+    >
       <span className="flex size-11 items-center justify-center rounded-xl bg-muted text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
         <Icon className="size-5" aria-hidden="true" />
       </span>
@@ -47,7 +56,7 @@ function BenefitCard({ icon: Icon, title, description }: Benefit) {
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         {description}
       </p>
-    </article>
+    </motion.article>
   )
 }
 
@@ -62,8 +71,16 @@ export function WhyChooseUs() {
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((benefit) => (
-            <BenefitCard key={benefit.title} {...benefit} />
+          {benefits.map((benefit, index) => (
+            <motion.div
+              key={benefit.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ margin: "0px 0px -10% 0px" }}
+              transition={{ duration: 0.5, delay: index * 0.1, ease }}
+            >
+              <BenefitCard {...benefit} />
+            </motion.div>
           ))}
         </div>
       </Container>
