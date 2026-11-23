@@ -11,7 +11,10 @@ import {
 } from "@workspace/ui/components/table"
 
 import { EmptyState } from "@/components/dashboard/empty-state"
-import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
+import {
+  FilterBar,
+  type FilterDefinition,
+} from "@/components/dashboard/filter-bar"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { TablePagination } from "@/components/dashboard/table-pagination"
@@ -79,7 +82,7 @@ export default async function AdminTransactionsPage({
           description="Try a different search term or clear the status filter."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border">
+        <div className="overflow-x-auto rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>

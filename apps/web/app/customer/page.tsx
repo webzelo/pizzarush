@@ -11,13 +11,23 @@ import {
 import { Button } from "@workspace/ui/components/button"
 
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
+import {
+  orderStatusSegments,
+  StatusDonutChart,
+  TrendChart,
+} from "@/components/dashboard/charts"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { PageHeader } from "@/components/dashboard/page-header"
+import { ProfileSummaryCard } from "@/components/dashboard/profile-summary-card"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { cancelOrder } from "@/lib/api/order-updates"
 import { requireRole } from "@/lib/dal/session"
-import { getCustomerOrderCounts, getRecentOrders } from "@/lib/data/orders"
+import {
+  getCustomerOrderCounts,
+  getOrderTrend,
+  getRecentOrders,
+} from "@/lib/data/orders"
 
 export const metadata: Metadata = {
   title: "Customer dashboard",
@@ -25,9 +35,10 @@ export const metadata: Metadata = {
 
 export default async function CustomerOverviewPage() {
   const session = await requireRole("customer")
-  const [counts, recentOrders] = await Promise.all([
+  const [counts, recentOrders, trend] = await Promise.all([
     getCustomerOrderCounts(session.user.id),
     getRecentOrders({ customerId: session.user.id }, 3),
+    getOrderTrend({ customerId: session.user.id }),
   ])
 
   return (
@@ -44,7 +55,11 @@ export default async function CustomerOverviewPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total orders" value={counts.total} icon={ShoppingBag} />
+        <StatCard
+          label="Total orders"
+          value={counts.total}
+          icon={ShoppingBag}
+        />
         <StatCard
           label="Pending"
           value={counts.pending}
@@ -58,10 +73,30 @@ export default async function CustomerOverviewPage() {
           icon={CheckCircle2}
           tone="success"
         />
-        <StatCard
-          label="Rejected"
-          value={counts.rejected}
-          icon={XCircle}
+        <StatCard label="Rejected" value={counts.rejected} icon={XCircle} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid min-w-0 gap-6 md:grid-cols-2">
+          <StatusDonutChart
+            title="Order status"
+            description="Where your recent orders stand."
+            segments={orderStatusSegments(counts)}
+            totalLabel="orders"
+          />
+          <TrendChart
+            title="Orders this week"
+            description="How many orders you placed each day."
+            points={trend}
+            valueLabel="orders"
+          />
+        </div>
+        <ProfileSummaryCard
+          name={session.user.name}
+          email={session.user.email}
+          image={session.user.image}
+          roleLabel="Customer"
+          profileHref="/customer/profile"
         />
       </div>
 

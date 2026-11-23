@@ -20,17 +20,27 @@ import {
 } from "@workspace/ui/components/card"
 
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
+import {
+  orderStatusSegments,
+  StatusDonutChart,
+  TrendChart,
+} from "@/components/dashboard/charts"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
+import { ProfileSummaryCard } from "@/components/dashboard/profile-summary-card"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { acceptOrder, rejectOrder } from "@/lib/actions/vendor-orders"
 import { FREE_ACTIVE_ITEM_LIMIT } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
-import { getRecentOrders } from "@/lib/data/orders"
+import {
+  getOrderTrend,
+  getRecentOrders,
+  getVendorOrderCounts,
+} from "@/lib/data/orders"
 import { getVendorDashboard } from "@/lib/data/vendors"
 import { formatDate } from "@/lib/format"
 import { planFeatures } from "@/lib/plans"
@@ -67,10 +77,11 @@ export default async function VendorOverviewPage() {
     )
   }
 
-  const pendingOrders = await getRecentOrders(
-    { vendorId: session.user.id, status: "pending" },
-    3
-  )
+  const [counts, trend, pendingOrders] = await Promise.all([
+    getVendorOrderCounts(session.user.id),
+    getOrderTrend({ vendorId: session.user.id }),
+    getRecentOrders({ vendorId: session.user.id, status: "pending" }, 3),
+  ])
 
   return (
     <>
@@ -128,6 +139,31 @@ export default async function VendorOverviewPage() {
               : "Upgrade for unlimited items"
           }
           icon={CreditCard}
+        />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid min-w-0 gap-6 md:grid-cols-2">
+          <StatusDonutChart
+            title="Order status"
+            description="A breakdown of all customer orders."
+            segments={orderStatusSegments(counts)}
+            totalLabel="orders"
+          />
+          <TrendChart
+            title="Orders this week"
+            description="New orders received each day."
+            points={trend}
+            valueLabel="orders"
+          />
+        </div>
+        <ProfileSummaryCard
+          name={session.user.name}
+          email={session.user.email}
+          image={session.user.image}
+          roleLabel="Vendor"
+          plan={dashboard.plan}
+          profileHref="/vendor/profile"
         />
       </div>
 

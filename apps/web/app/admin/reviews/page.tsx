@@ -41,7 +41,7 @@ export default async function AdminReviewsPage() {
           description="Customer ratings will appear here once they review a dish."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border">
+        <div className="overflow-x-auto rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>

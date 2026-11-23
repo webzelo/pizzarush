@@ -13,6 +13,7 @@ import {
 } from "@/lib/collections"
 import { PAGE_SIZE } from "@/lib/constants"
 import { escapeRegex } from "@/lib/data/menu"
+import type { TrendPoint } from "@/lib/data/orders"
 import { formatCurrency } from "@/lib/format"
 import { isPremiumActive } from "@/lib/plans"
 
@@ -67,6 +68,83 @@ export async function getAdminStats(): Promise<AdminStats> {
     paidTransactions: paid[0]?.count ?? 0,
     revenue: formatCurrency(paid[0]?.amount ?? 0),
   }
+}
+
+export type MenuStatusCounts = {
+  approved: number
+  pending: number
+  rejected: number
+  total: number
+}
+
+/** Menu review pipeline counts for the admin dashboard chart. */
+export async function getMenuStatusCounts(): Promise<MenuStatusCounts> {
+  const rows = await menuItemsCollection
+    .aggregate<{ _id: MenuItemStatus; count: number }>([
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ])
+    .toArray()
+
+  const counts: MenuStatusCounts = {
+    approved: 0,
+    pending: 0,
+    rejected: 0,
+    total: 0,
+  }
+
+  for (const row of rows) {
+    counts[row._id] = row.count
+    counts.total += row.count
+  }
+
+  return counts
+}
+
+/** Paid subscription revenue per day, including empty days. */
+export async function getRevenueTrend(days = 7): Promise<TrendPoint[]> {
+  const start = new Date()
+  start.setUTCHours(0, 0, 0, 0)
+  start.setUTCDate(start.getUTCDate() - days + 1)
+
+  const rows = await transactionsCollection
+    .aggregate<{ _id: string; amount: number }>([
+      {
+        $match: {
+          paymentStatus: "paid",
+          createdAt: { $gte: start },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "UTC",
+            },
+          },
+          amount: { $sum: "$amount" },
+        },
+      },
+    ])
+    .toArray()
+
+  const amounts = new Map(rows.map((row) => [row._id, row.amount]))
+
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(start)
+    date.setUTCDate(start.getUTCDate() + index)
+    const key = date.toISOString().slice(0, 10)
+
+    return {
+      label: date.toLocaleDateString("en-US", {
+        weekday: "short",
+        timeZone: "UTC",
+      }),
+      value: Math.round((amounts.get(key) ?? 0) * 100) / 100,
+      date: key,
+    }
+  })
 }
 
 export type AdminUserView = {

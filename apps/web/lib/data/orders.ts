@@ -85,7 +85,9 @@ function toOrderView(order: OrderDoc): OrderView {
   }
 }
 
-async function orderCounts(match: Filter<OrderDoc>): Promise<OrderCounts> {
+export async function getOrderCounts(
+  match: Filter<OrderDoc> = {}
+): Promise<OrderCounts> {
   const rows = await ordersCollection
     .aggregate<{ _id: OrderStatus; count: number }>([
       { $match: match },
@@ -150,11 +152,72 @@ export function listVendorOrders(
 }
 
 export function getCustomerOrderCounts(customerId: string) {
-  return orderCounts({ customerId })
+  return getOrderCounts({ customerId })
 }
 
 export function getVendorOrderCounts(vendorId: string) {
-  return orderCounts({ vendorId })
+  return getOrderCounts({ vendorId })
+}
+
+export type TrendPoint = {
+  /** Short axis label, e.g. "Mon". */
+  label: string
+  value: number
+  /** Full date used for the accessible description and tooltip. */
+  date: string
+}
+
+/**
+ * Order counts for the last `days` UTC calendar days, including empty days.
+ * Used by the customer, vendor and admin dashboard charts.
+ */
+export async function getOrderTrend(
+  match: Filter<OrderDoc> = {},
+  days = 7
+): Promise<TrendPoint[]> {
+  const start = new Date()
+  start.setUTCHours(0, 0, 0, 0)
+  start.setUTCDate(start.getUTCDate() - days + 1)
+
+  const rows = await ordersCollection
+    .aggregate<{ _id: string; count: number }>([
+      {
+        $match: {
+          ...match,
+          createdAt: { $gte: start },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "UTC",
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ])
+    .toArray()
+
+  const counts = new Map(rows.map((row) => [row._id, row.count]))
+
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(start)
+    date.setUTCDate(start.getUTCDate() + index)
+    const key = date.toISOString().slice(0, 10)
+
+    return {
+      label: date.toLocaleDateString("en-US", {
+        weekday: "short",
+        timeZone: "UTC",
+      }),
+      value: counts.get(key) ?? 0,
+      date: key,
+    }
+  })
 }
 
 export async function getCustomerOrder(customerId: string, orderId: string) {

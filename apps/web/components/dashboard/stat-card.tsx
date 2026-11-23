@@ -30,7 +30,14 @@ export function StatCard({
   tone = "default",
 }: StatCardProps) {
   return (
-    <Card size="sm">
+    <Card
+      size="sm"
+      className="relative overflow-hidden transition-shadow hover:shadow-sm"
+    >
+      <div
+        className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-accent to-transparent"
+        aria-hidden="true"
+      />
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {label}
@@ -45,7 +52,9 @@ export function StatCard({
         </span>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold tracking-tight">{value}</p>
+        <p className="text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">
+          {value}
+        </p>
         {description ? (
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         ) : null}

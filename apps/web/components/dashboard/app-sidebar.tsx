@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ChevronsUpDown, LogOut, Store } from "lucide-react"
+import { ChevronsUpDown, LogOut, Store, UserRound } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -30,7 +30,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { UserAvatar } from "@/components/auth/user-avatar"
 import { authClient } from "@/lib/auth-client"
-import type { AccountRole } from "@/lib/auth/roles"
+import { profilePathForRole, type AccountRole } from "@/lib/auth/roles"
 import {
   activeNavHref,
   dashboardNav,
@@ -141,11 +141,22 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 className="w-56"
               >
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="truncate">
-                    {user.email}
+                  <DropdownMenuLabel>
+                    <span className="block truncate">{user.name}</span>
+                    <span className="block truncate text-xs font-normal text-muted-foreground">
+                      {user.email}
+                    </span>
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+                {role !== "admin" ? (
+                  <DropdownMenuItem
+                    render={<Link href={profilePathForRole(role)} />}
+                  >
+                    <UserRound />
+                    Profile settings
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem render={<Link href="/" />}>
                   <Store />
                   View public site

@@ -14,15 +14,15 @@ import {
 import { RejectMenuItemDialog } from "@/components/admin/reject-menu-item-dialog"
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { EmptyState } from "@/components/dashboard/empty-state"
-import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
+import {
+  FilterBar,
+  type FilterDefinition,
+} from "@/components/dashboard/filter-bar"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { TablePagination } from "@/components/dashboard/table-pagination"
-import {
-  deleteMenuItemAsAdmin,
-  setMenuItemStatus,
-} from "@/lib/actions/admin"
+import { deleteMenuItemAsAdmin, setMenuItemStatus } from "@/lib/actions/admin"
 import { MENU_STATUSES } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { listAdminMenuItems } from "@/lib/data/admin"
@@ -83,7 +83,7 @@ export default async function AdminMenuPage({
           description="Try a different search term or clear the status filter."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border">
+        <div className="overflow-x-auto rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>

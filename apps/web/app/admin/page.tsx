@@ -18,17 +18,21 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 
+import { StatusDonutChart, TrendChart } from "@/components/dashboard/charts"
 import { EmptyState } from "@/components/dashboard/empty-state"
 import { PageHeader } from "@/components/dashboard/page-header"
+import { ProfileSummaryCard } from "@/components/dashboard/profile-summary-card"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { requireRole } from "@/lib/dal/session"
 import {
   getAdminStats,
+  getMenuStatusCounts,
   getPendingMenuItems,
   getRecentTransactions,
+  getRevenueTrend,
 } from "@/lib/data/admin"
-import { formatDate } from "@/lib/format"
+import { formatCurrency, formatDate } from "@/lib/format"
 
 export const metadata: Metadata = {
   title: "Admin dashboard",
@@ -36,11 +40,14 @@ export const metadata: Metadata = {
 
 export default async function AdminOverviewPage() {
   const session = await requireRole("admin")
-  const [stats, pendingItems, recentTransactions] = await Promise.all([
-    getAdminStats(),
-    getPendingMenuItems(4),
-    getRecentTransactions(4),
-  ])
+  const [stats, pendingItems, recentTransactions, menuStatus, revenueTrend] =
+    await Promise.all([
+      getAdminStats(),
+      getPendingMenuItems(4),
+      getRecentTransactions(4),
+      getMenuStatusCounts(),
+      getRevenueTrend(),
+    ])
 
   return (
     <>
@@ -87,6 +94,46 @@ export default async function AdminOverviewPage() {
           description="Paid subscriptions"
           icon={DollarSign}
           tone="success"
+        />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid min-w-0 gap-6 md:grid-cols-2">
+          <StatusDonutChart
+            title="Menu review pipeline"
+            description="Approval status across every restaurant menu."
+            totalLabel="items"
+            segments={[
+              {
+                label: "Approved",
+                value: menuStatus.approved,
+                color: "var(--chart-4)",
+              },
+              {
+                label: "Pending review",
+                value: menuStatus.pending,
+                color: "var(--chart-2)",
+              },
+              {
+                label: "Rejected",
+                value: menuStatus.rejected,
+                color: "var(--chart-1)",
+              },
+            ]}
+          />
+          <TrendChart
+            title="Premium revenue"
+            description="Paid subscription revenue over the last 7 days."
+            points={revenueTrend}
+            valueLabel="USD"
+            formatValue={(value) => formatCurrency(value)}
+          />
+        </div>
+        <ProfileSummaryCard
+          name={session.user.name}
+          email={session.user.email}
+          image={session.user.image}
+          roleLabel="Admin"
         />
       </div>
 

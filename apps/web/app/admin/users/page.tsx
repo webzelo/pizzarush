@@ -14,7 +14,10 @@ import {
 import { UserAvatar } from "@/components/auth/user-avatar"
 import { ConfirmAction } from "@/components/dashboard/confirm-action"
 import { EmptyState } from "@/components/dashboard/empty-state"
-import { FilterBar, type FilterDefinition } from "@/components/dashboard/filter-bar"
+import {
+  FilterBar,
+  type FilterDefinition,
+} from "@/components/dashboard/filter-bar"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { PremiumBadge } from "@/components/dashboard/premium-badge"
 import { TablePagination } from "@/components/dashboard/table-pagination"
@@ -75,7 +78,10 @@ export default async function AdminUsersPage({
         description="Search every account, filter by role, and block abusive users. Blocking signs them out immediately."
       />
 
-      <FilterBar searchPlaceholder="Search name or email…" filters={[roleFilter]} />
+      <FilterBar
+        searchPlaceholder="Search name or email…"
+        filters={[roleFilter]}
+      />
 
       {users.users.length === 0 ? (
         <EmptyState
@@ -84,7 +90,7 @@ export default async function AdminUsersPage({
           description="Try a different search term or clear the role filter."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border">
+        <div className="overflow-x-auto rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -159,7 +165,11 @@ export default async function AdminUsersPage({
                     <TableCell className="text-right">
                       {canModerate ? (
                         <ConfirmAction
-                          action={setUserBlocked.bind(null, user.id, !user.banned)}
+                          action={setUserBlocked.bind(
+                            null,
+                            user.id,
+                            !user.banned
+                          )}
                           triggerLabel={user.banned ? "Unblock" : "Block"}
                           title={
                             user.banned
@@ -171,7 +181,9 @@ export default async function AdminUsersPage({
                               ? "The user will be able to sign in and use the platform again."
                               : "The user is signed out of every device and cannot sign in until unblocked."
                           }
-                          confirmLabel={user.banned ? "Unblock user" : "Block user"}
+                          confirmLabel={
+                            user.banned ? "Unblock user" : "Block user"
+                          }
                           variant={user.banned ? "outline" : "destructive"}
                         />
                       ) : (
