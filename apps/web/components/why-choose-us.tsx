@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 import { ChefHat, Leaf, ShieldCheck, Timer } from "lucide-react"
-import { motion } from "framer-motion"
+import { MotionDiv } from "@/components/motion-div"
 
 import { Container } from "@/components/container"
 import { SectionHeading } from "@/components/section-heading"
@@ -42,7 +42,7 @@ const benefits: Benefit[] = [
 
 function BenefitCard({ icon: Icon, title, description }: Benefit) {
   return (
-    <motion.article
+    <MotionDiv
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ margin: "0px 0px -10% 0px" }}
@@ -56,7 +56,7 @@ function BenefitCard({ icon: Icon, title, description }: Benefit) {
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         {description}
       </p>
-    </motion.article>
+    </MotionDiv>
   )
 }
 
@@ -72,7 +72,7 @@ export function WhyChooseUs() {
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((benefit, index) => (
-            <motion.div
+            <MotionDiv
               key={benefit.title}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -80,7 +80,7 @@ export function WhyChooseUs() {
               transition={{ duration: 0.5, delay: index * 0.1, ease }}
             >
               <BenefitCard {...benefit} />
-            </motion.div>
+            </MotionDiv>
           ))}
         </div>
       </Container>

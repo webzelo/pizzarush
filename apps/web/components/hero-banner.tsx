@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Flame } from "lucide-react"
-import { motion } from "framer-motion"
+import { MotionDiv } from "@/components/motion-div"
 
 import { buttonVariants } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
@@ -12,7 +12,7 @@ const ease = "easeOut" as const
 
 export function HeroBanner() {
   return (
-    <motion.section
+    <MotionDiv
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease }}
@@ -24,14 +24,14 @@ export function HeroBanner() {
       />
 
       <Container className="grid items-center gap-12 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
           transition={{ duration: 0.7, ease }}
           className="max-w-xl"
         >
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ margin: "0px 0px -20% 0px" }}
@@ -40,7 +40,7 @@ export function HeroBanner() {
           >
             <Flame className="size-3.5 text-primary" aria-hidden="true" />
             Fresh from the oven
-          </motion.div>
+          </MotionDiv>
 
           <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
             Hot &amp; Fresh Pizza Delivered To Your Door
@@ -64,9 +64,9 @@ export function HeroBanner() {
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </div>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, scale: 1.02 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
@@ -89,8 +89,8 @@ export function HeroBanner() {
               className="object-cover"
             />
           </div>
-        </motion.div>
+        </MotionDiv>
       </Container>
-    </motion.section>
+    </MotionDiv>
   )
 }

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
+import { MotionDiv } from "@/components/motion-div"
 
 import { buttonVariants } from "@workspace/ui/components/button"
 
@@ -40,7 +40,7 @@ export async function FeaturedMenu() {
   return (
     <section className="border-y bg-muted/30 py-16 sm:py-20">
       <Container>
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
@@ -60,9 +60,9 @@ export async function FeaturedMenu() {
               <ArrowRight />
             </Link>
           </div>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
@@ -70,7 +70,7 @@ export async function FeaturedMenu() {
           className="mt-8"
         >
           <MenuGrid items={featured} favoriteItemIds={favoriteItemIds} />
-        </motion.div>
+        </MotionDiv>
       </Container>
     </section>
   )

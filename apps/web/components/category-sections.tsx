@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { MotionDiv } from "@/components/motion-div"
 
 import { CategoryCarousel } from "@/components/category-carousel"
 import { Container } from "@/components/container"
@@ -85,7 +85,7 @@ export async function CategorySections() {
   return (
     <section className="border-b py-16 sm:py-20">
       <Container>
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
@@ -96,9 +96,9 @@ export async function CategorySections() {
             title="Browse by Category"
             description="Everything you want, grouped so you can find it faster."
           />
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ margin: "0px 0px -10% 0px" }}
@@ -111,7 +111,7 @@ export async function CategorySections() {
               items: items as PublicMenuItem[],
             }))}
           />
-        </motion.div>
+        </MotionDiv>
       </Container>
     </section>
   )

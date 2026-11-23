@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 import { Pizza, ShoppingCart, Truck } from "lucide-react"
-import { motion } from "framer-motion"
+import { MotionDiv } from "@/components/motion-div"
 
 import { Container } from "@/components/container"
 import { SectionHeading } from "@/components/section-heading"
@@ -43,7 +43,7 @@ function StepCard({ step, index, isLast }: StepCardProps) {
   const Icon = step.icon
 
   return (
-    <motion.li
+    <MotionDiv
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ margin: "0px 0px -10% 0px" }}
@@ -68,7 +68,7 @@ function StepCard({ step, index, isLast }: StepCardProps) {
       <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
         {step.description}
       </p>
-    </motion.li>
+    </MotionDiv>
   )
 }
 
