@@ -3,6 +3,7 @@
 import { ObjectId } from "mongodb"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import type { ZodError } from "zod"
 
 import {
   actionResult,
@@ -11,10 +12,7 @@ import {
   type ActionResult,
   type FormState,
 } from "@/lib/action-state"
-import {
-  menuItemsCollection,
-  type MenuItemStatus,
-} from "@/lib/collections"
+import { menuItemsCollection, type MenuItemStatus } from "@/lib/collections"
 import { FREE_ACTIVE_ITEM_LIMIT } from "@/lib/constants"
 import { requireRole } from "@/lib/dal/session"
 import { getVendorByUserId } from "@/lib/dal/vendor"
@@ -24,12 +22,9 @@ import {
 } from "@/lib/data/menu"
 import { toObjectId } from "@/lib/object-id"
 import { isPremiumActive } from "@/lib/plans"
-import { menuItemInputSchema } from "@/lib/validation"
+import { menuItemInputSchema, menuItemUpdateSchema } from "@/lib/validation"
 
-async function activeLimitReached(
-  vendorId: string,
-  excludeItemId?: ObjectId
-) {
+async function activeLimitReached(vendorId: string, excludeItemId?: ObjectId) {
   const vendor = await getVendorByUserId(vendorId)
   if (isPremiumActive(vendor)) return false
 
@@ -46,6 +41,15 @@ async function activeLimitReached(
 
 function limitMessage() {
   return `The Free plan allows ${FREE_ACTIVE_ITEM_LIMIT} active menu items. Upgrade to Premium for unlimited items.`
+}
+
+/** Logs the exact failing fields so "Please fix the highlighted fields" is debuggable. */
+function formStateFromValidationError(
+  action: string,
+  error: ZodError
+): FormState {
+  console.error(`${action} validation failed`, error.issues)
+  return formStateFromError(error)
 }
 
 function revalidateMenuSurfaces() {
@@ -73,7 +77,7 @@ export async function createMenuItem(
 
   const parsed = menuItemInputSchema.safeParse(formDataObject(formData))
   if (!parsed.success) {
-    return formStateFromError(parsed.error)
+    return formStateFromValidationError("createMenuItem", parsed.error)
   }
 
   if (parsed.data.isActive && (await activeLimitReached(session.user.id))) {
@@ -124,9 +128,11 @@ export async function updateMenuItem(
     return { status: "error", message: "Menu item not found." }
   }
 
-  const parsed = menuItemInputSchema.safeParse(formDataObject(formData))
+  const parsed = menuItemUpdateSchema(existing.imageUrl ?? "").safeParse(
+    formDataObject(formData)
+  )
   if (!parsed.success) {
-    return formStateFromError(parsed.error)
+    return formStateFromValidationError("updateMenuItem", parsed.error)
   }
 
   if (

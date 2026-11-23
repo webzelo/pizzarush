@@ -70,7 +70,10 @@ export function MenuItemForm({ item }: { item?: MenuItemView }) {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="category">Category</FieldLabel>
-                <Select name="category" defaultValue={item?.category ?? "Pizza"}>
+                <Select
+                  name="category"
+                  defaultValue={item?.category ?? "Pizza"}
+                >
                   <SelectTrigger id="category" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -148,7 +151,7 @@ export function MenuItemForm({ item }: { item?: MenuItemView }) {
           <CardHeader>
             <CardTitle>Item image</CardTitle>
             <CardDescription>
-              JPG, PNG, WebP or GIF, up to 5 MB.
+              JPG, PNG, WebP or GIF, up to 5 MB. New images are stored on ImgBB.
             </CardDescription>
           </CardHeader>
           <CardContent>

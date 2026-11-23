@@ -6,17 +6,19 @@ import { todayInputValue } from "@/lib/format"
 const trimmed = (min: number, max: number, message: string) =>
   z.string().trim().min(min, message).max(max, message)
 
+function isImgbbUrl(value: string) {
+  try {
+    return IMAGE_HOSTS.includes(new URL(value).hostname)
+  } catch {
+    return false
+  }
+}
+
 const imageUrl = z
   .string()
   .trim()
   .url("Upload an image before saving.")
-  .refine((value) => {
-    try {
-      return IMAGE_HOSTS.includes(new URL(value).hostname)
-    } catch {
-      return false
-    }
-  }, "Image must be uploaded through the app.")
+  .refine(isImgbbUrl, "Image must be uploaded through the app.")
 
 const optionalImageUrl = z
   .union([imageUrl, z.literal("")])
@@ -39,6 +41,25 @@ export const menuItemInputSchema = z.object({
     .default("true")
     .transform((value) => value === "true"),
 })
+
+/**
+ * Legacy menu items may have an image from the old sample catalogue. Keeping
+ * that exact URL is allowed, but any replacement must be an ImgBB upload.
+ */
+export function menuItemUpdateSchema(existingImageUrl: string) {
+  const currentImageUrl = existingImageUrl.trim()
+
+  return menuItemInputSchema.extend({
+    imageUrl: z
+      .string()
+      .trim()
+      .url("Upload an image before saving.")
+      .refine(
+        (value) => value === currentImageUrl || isImgbbUrl(value),
+        "Menu item images must be uploaded to ImgBB."
+      ),
+  })
+}
 
 export const userProfileInputSchema = z.object({
   name: trimmed(2, 80, "Name must be 2–80 characters."),
