@@ -9,6 +9,7 @@ import {
 } from "@/lib/action-state"
 import { usersCollection } from "@/lib/collections"
 import { requireUser } from "@/lib/dal/session"
+import { userIdFilter } from "@/lib/db/ids"
 import { userProfileInputSchema } from "@/lib/validation"
 
 /**
@@ -38,8 +39,8 @@ export async function saveUserProfile(
   }
 
   try {
-    await usersCollection.updateOne(
-      { _id: session.user.id },
+    const result = await usersCollection.updateOne(
+      userIdFilter(session.user.id),
       {
         $set: {
           name: parsed.data.name,
@@ -50,6 +51,13 @@ export async function saveUserProfile(
         },
       }
     )
+
+    if (result.matchedCount === 0) {
+      return {
+        status: "error",
+        message: "Your account could not be found. Please sign in again.",
+      }
+    }
   } catch (error) {
     console.error("Failed to update user profile", error)
     return {
