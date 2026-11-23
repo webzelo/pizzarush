@@ -1,20 +1,17 @@
 "use client"
 
-import { useActionState } from "react"
-import { CalendarDays, MapPin, MessageSquare, ShoppingBag } from "lucide-react"
+import type { FormEvent } from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@workspace/ui/components/field"
+import { Button } from "@workspace/ui/components/button"
+import { Field, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
+import { useToastManager } from "@workspace/ui/components/toast"
 
-import { SubmitButton } from "@/components/dashboard/submit-button"
-import { initialFormState } from "@/lib/action-state"
-import { placeOrder } from "@/lib/actions/customer-orders"
+import { apiClient } from "@/lib/api-client"
 import { todayInputValue } from "@/lib/format"
 
 type OrderFormProps = {
@@ -23,86 +20,121 @@ type OrderFormProps = {
 }
 
 export function OrderForm({ menuItemId, priceLabel }: OrderFormProps) {
-  const [state, formAction] = useActionState(placeOrder, initialFormState)
-  const errors = state.fieldErrors ?? {}
+  const router = useRouter()
+  const toast = useToastManager()
+  const [saving, setSaving] = useState(false)
+  const [values, setValues] = useState({
+    quantity: 1,
+    deliveryDate: todayInputValue(),
+    deliveryAddress: "",
+    customerMessage: "",
+  })
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setSaving(true)
+
+    const result = await apiClient("/api/orders", {
+      method: "POST",
+      body: JSON.stringify({
+        menuItemId,
+        quantity: values.quantity,
+        deliveryDate: values.deliveryDate,
+        deliveryAddress: values.deliveryAddress.trim(),
+        customerMessage: values.customerMessage.trim(),
+      }),
+    })
+
+    if (result.ok) {
+      toast.add({
+        title: "Done",
+        description: "Order placed. The restaurant will accept or reject it soon.",
+        type: "success",
+      })
+      router.push("/customer/orders?placed=1")
+      router.refresh()
+    } else {
+      toast.add({
+        title: "Action failed",
+        description: result.message,
+        type: "error",
+      })
+    }
+
+    setSaving(false)
+  }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <input type="hidden" name="menuItemId" value={menuItemId} />
-
+    <form onSubmit={handleSubmit} className="space-y-5">
       <FieldGroup className="gap-4">
         <Field>
           <FieldLabel htmlFor="quantity">Quantity</FieldLabel>
           <Input
             id="quantity"
-            name="quantity"
             type="number"
             min={1}
             max={20}
-            defaultValue={1}
+            value={values.quantity}
+            onChange={(event) =>
+              setValues({
+                ...values,
+                quantity: event.target.valueAsNumber || 1,
+              })
+            }
             required
           />
           <p className="text-xs text-muted-foreground">
             {priceLabel} each · maximum 20 per order
           </p>
-          <FieldError>{errors.quantity}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="deliveryDate">
-            <CalendarDays className="size-3.5" />
-            Delivery date
-          </FieldLabel>
+          <FieldLabel htmlFor="deliveryDate">Delivery date</FieldLabel>
           <Input
             id="deliveryDate"
-            name="deliveryDate"
             type="date"
-            min={todayInputValue()}
+            value={values.deliveryDate}
+            onChange={(event) =>
+              setValues({ ...values, deliveryDate: event.target.value })
+            }
             required
           />
-          <FieldError>{errors.deliveryDate}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="deliveryAddress">
-            <MapPin className="size-3.5" />
-            Delivery address
-          </FieldLabel>
+          <FieldLabel htmlFor="deliveryAddress">Delivery address</FieldLabel>
           <Textarea
             id="deliveryAddress"
-            name="deliveryAddress"
             rows={3}
             placeholder="House, street, area, city"
+            value={values.deliveryAddress}
+            onChange={(event) =>
+              setValues({ ...values, deliveryAddress: event.target.value })
+            }
             required
           />
-          <FieldError>{errors.deliveryAddress}</FieldError>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="customerMessage">
-            <MessageSquare className="size-3.5" />
             Message to the restaurant
           </FieldLabel>
           <Textarea
             id="customerMessage"
-            name="customerMessage"
             rows={2}
             placeholder="Optional delivery notes or special requests"
+            value={values.customerMessage}
+            onChange={(event) =>
+              setValues({ ...values, customerMessage: event.target.value })
+            }
           />
-          <FieldError>{errors.customerMessage}</FieldError>
         </Field>
       </FieldGroup>
 
-      {state.status === "error" ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-          {state.message}
-        </p>
-      ) : null}
-
-      <SubmitButton size="lg" pendingLabel="Placing order…">
-        <ShoppingBag />
-        Place order
-      </SubmitButton>
+      <Button type="submit" size="lg" disabled={saving}>
+        {saving ? <Spinner /> : null}
+        {saving ? "Placing order…" : "Place order"}
+      </Button>
     </form>
   )
 }

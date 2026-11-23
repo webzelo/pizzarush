@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/dashboard/empty-state"
 import { OrderCard } from "@/components/dashboard/order-card"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { StatCard } from "@/components/dashboard/stat-card"
-import { cancelOrder } from "@/lib/actions/customer-orders"
+import { cancelOrder } from "@/lib/api/order-updates"
 import { requireRole } from "@/lib/dal/session"
 import { getCustomerOrderCounts, getRecentOrders } from "@/lib/data/orders"
 

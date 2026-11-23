@@ -17,7 +17,7 @@ import { OrderCard } from "@/components/dashboard/order-card"
 import { OrderEditForm } from "@/components/dashboard/order-edit-form"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { StatusBadge } from "@/components/dashboard/status-badge"
-import { cancelOrder } from "@/lib/actions/customer-orders"
+import { cancelOrder } from "@/lib/api/order-updates"
 import { requireRole } from "@/lib/dal/session"
 import { getCustomerOrder } from "@/lib/data/orders"
 

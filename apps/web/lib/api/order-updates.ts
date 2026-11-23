@@ -1,3 +1,4 @@
+import type { ActionResult } from "@/lib/action-state"
 import { apiClient, type ApiResult } from "@/lib/api-client"
 import type { OrderStatus, PaymentStatus } from "@/lib/collections"
 
@@ -19,7 +20,8 @@ export type UpdateOrderPayload = {
 
 /**
  * Save/update updatable order info.
- * - Customer: their own order while still pending (delivery details).
+ * - Customer: their own order while still pending (delivery details, or
+ *   cancel via `{ status: "cancelled" }`).
  * - Vendor: their own orders (payment info).
  * - Admin: any order.
  */
@@ -34,4 +36,10 @@ export async function updateOrder(
       body: JSON.stringify(fields),
     }
   )
+}
+
+/** Cancel your own pending order through the Express API. */
+export async function cancelOrder(orderId: string): Promise<ActionResult> {
+  const result = await updateOrder(orderId, { status: "cancelled" })
+  return result.ok ? { ok: true, message: "Order cancelled." } : result
 }
