@@ -1,6 +1,6 @@
 import { MongoClient, type Db } from "mongodb"
 
-const uri = process.env.BETTER_AUTH_DB_URI
+const uri = "mongodb+srv://pizzahubAdmin:2KZQXbilh7QwfOE9@cluster0.8evmyeo.mongodb.net/"
 
 if (!uri) {
   throw new Error(
